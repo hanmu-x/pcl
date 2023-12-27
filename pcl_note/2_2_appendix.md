@@ -4,43 +4,50 @@
 
 * **计算模型分辨率**
 
+	- PCL（Point Cloud Library）中的KD树（K-Dimensional Tree）数据结构的实现，用于高效地进行最近邻搜索。KD树是一种二叉树结构，它在高维空间中对数据进行分割，从而允许高效地进行最近邻搜索和范围搜索。
+	- 
+
 resolution.h
 
 ```cpp
 #include <pcl/io/pcd_io.h>
 #include <pcl/search/kdtree.h>
 
-// This function by Tommaso Cavallari and Federico Tombari, taken from the tutorial
-// http://pointclouds.org/documentation/tutorials/correspondence_grouping.php
 double computeCloudResolution(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& cloud)
 {
-	double resolution = 0.0;
-	int numberOfPoints = 0;
-	int nres;
-	std::vector<int> indices(2);
-	std::vector<float> squaredDistances(2);
-	pcl::search::KdTree<pcl::PointXYZ> tree;
-	tree.setInputCloud(cloud);
+    double resolution = 0.0;  // 分辨率
+    int numberOfPoints = 0;   // 记录有效点的数量
+    int nres;                 // 记录最近邻搜索的结果
+    std::vector<int> indices(2);           // 存储最近邻点的索引
+    std::vector<float> squaredDistances(2); // 存储最近邻距离的平方
+    pcl::search::KdTree<pcl::PointXYZ> tree; // 创建KD树，用于最近邻搜索
+    tree.setInputCloud(cloud);              // 将点云设置为KD树的输入
 
-	for (size_t i = 0; i < cloud->size(); ++i)
-	{
-		if (!pcl_isfinite((*cloud)[i].x))
-			continue;
+    for (size_t i = 0; i < cloud->size(); ++i)
+    {
+        // 跳过包含非法值的点
+        if (!pcl_isfinite((*cloud)[i].x))
+            continue;
 
-		// Considering the second neighbor since the first is the point itself.
-		nres = tree.nearestKSearch(i, 2, indices, squaredDistances);
-		if (nres == 2)
-		{
-			resolution += sqrt(squaredDistances[1]);
-			++numberOfPoints;
-		}
-	}
-	if (numberOfPoints != 0)
-		resolution /= numberOfPoints;
+		// nearestKSearch：是 KD 树的成员函数，用于执行最近邻搜索。它接受点的索引（i）、要搜索的最近邻点的数量（2）、存储最近邻点索引的容器（indices）、以及存储最近邻点距离平方的容器（squaredDistances）
+        // 考虑第二个邻居，因为第一个邻居是点本身
+        nres = tree.nearestKSearch(i, 2, indices, squaredDistances);
+        if (nres == 2)
+        {
+            // 计算平方根，即最近邻距离，加到分辨率中
+            resolution += sqrt(squaredDistances[1]);
+            ++numberOfPoints;  // 记录有效点的数量
+        }
+    }
 
-	return resolution;
+    // 计算平均分辨率
+    if (numberOfPoints != 0)
+        resolution /= numberOfPoints;
+
+    return resolution;
 }
-```cpp
+
+```
 
 * **计算旋转平移矩阵**
 
@@ -57,21 +64,24 @@ getTransformation.h
 #include <pcl/registration/transformation_estimation_3point.h>
 #include <pcl/search/pcl_search.h>
 
+// 计算原始点云都按目标点云的变换旋转矩阵
 int getTransform(pcl::PointCloud<pcl::PointXYZ>::Ptr& src, pcl::PointCloud<pcl::PointXYZ>::Ptr& tar,
 	double resolution,
 	pcl::Correspondences &correspondences, Eigen::Matrix4f & transform)
 {
-	int cor_size = correspondences.size();
-	if (cor_size < 3)
+	int cor_size = correspondences.size();  // 获取对应关系的数量
+	if (cor_size < 3)  // 至少需要3个对应关系来进行配准
 	{
 		pcl::console::print_error("matching less 3");
 		return (-1);
 	}
 
 	float fitness_score = FLT_MAX;
-	boost::mt19937 gen;
-	boost::uniform_int<> dist(0, cor_size - 1);
-	boost::variate_generator<boost::mt19937&, boost::uniform_int<>> die(gen, dist);
+	// 下面三个变量 将用于随机选择对应关系
+	boost::mt19937 gen; // 随机数生成器
+	boost::uniform_int<> dist(0, cor_size - 1); // 均匀分布
+	boost::variate_generator<boost::mt19937&, boost::uniform_int<>> die(gen, dist); // 变量生成器
+	// 创建变换估计对象 , 使用三个点的变换估计方法
 	pcl::registration::TransformationEstimation<pcl::PointXYZ, pcl::PointXYZ, float>::Ptr transformationEstimation(new pcl::registration::TransformationEstimation3Point <pcl::PointXYZ, pcl::PointXYZ>);
 	pcl::search::KdTree<pcl::PointXYZ> tree;
 	tree.setInputCloud(tar);
@@ -148,7 +158,7 @@ int getTransform(pcl::PointCloud<pcl::PointXYZ>::Ptr& src, pcl::PointCloud<pcl::
 }
 
 #endif
-```cpp
+```
 
 * **旋转平移矩阵评估**
 
@@ -164,21 +174,21 @@ evaluation.h
 
 using namespace std;
 
-//compute ideal ratation and translation matrix
+// 计算理想评级和平移矩阵
 Eigen::Matrix4f createIdealTransformationMatrix(float tx, float ty, float tz, float rx, float ry, float rz)
 {
-	////rotating and translating point cloud
-	////m and m1 are both the unit matrixes
+	// // 旋转和平移点云
+	// // m和m1都是单位矩阵 
 	Eigen::Matrix4f m = Eigen::Matrix4f::Identity();
 	Eigen::Matrix4f m1 = Eigen::Matrix4f::Identity();
-	//tx,ty,tz are translation values of x ,y and z axis
+	// tx、ty、tz是x、y和z轴的平移值
 	m1(0, 3) = tx;
 	m1(1, 3) = ty;
 	m1(2, 3) = tz;
 	//cout << "m1" << endl << m1 << endl;
 	m = m * m1;   //apply the translation
 	//cout << "m" << endl << m << endl;
-	//rotating the point cloud along the x axis
+	// 沿x轴旋转点云
 	m1 = Eigen::Matrix4f::Identity();
 	rx = rx / 180.0 * M_PI;
 	m1(1, 1) = cos(rx);
@@ -186,9 +196,9 @@ Eigen::Matrix4f createIdealTransformationMatrix(float tx, float ty, float tz, fl
 	m1(2, 1) = sin(rx);
 	m1(2, 2) = cos(rx);
 	//cout << "m1" << endl << m1 << endl;
-	m = m * m1;   //apply the rotation along x axis
+	m = m * m1;   // 沿x轴应用旋转
 	//cout << "m" << endl << m << endl;
-	//rotating the point cloud along the y axis
+	// 沿y轴旋转点云
 	m1 = Eigen::Matrix4f::Identity();
 	ry = ry / 180.0 * M_PI;
 	m1(0, 0) = cos(ry);
@@ -198,7 +208,7 @@ Eigen::Matrix4f createIdealTransformationMatrix(float tx, float ty, float tz, fl
 	//cout << "m1" << endl << m1 << endl;
 	m = m * m1;   //apply the rotation along y axis
 	//cout << "m" << endl << m << endl;
-	//rotating the point cloud along the z axis
+	// 沿z轴旋转点云
 	m1 = Eigen::Matrix4f::Identity();
 	rz = rz / 180.0 * M_PI;
 	m1(0, 0) = cos(rz);
@@ -212,7 +222,7 @@ Eigen::Matrix4f createIdealTransformationMatrix(float tx, float ty, float tz, fl
 	return m;
 }
 
-//compute the error of rotation matrix and translation matrix
+// 旋转矩阵和平移矩阵的误差计算
 void computeMatrixError(float rotation, float translation, float & rotationError, float &translationError, Eigen::Matrix4f &realRtMatrix)
 {
 	Eigen::Matrix4f idealMatrix = Eigen::Matrix4f::Identity();
@@ -223,7 +233,7 @@ void computeMatrixError(float rotation, float translation, float & rotationError
 	Eigen::Matrix3f idealRotationMatrix = Eigen::Matrix3f::Identity();
 	Eigen::Vector3f iealTranslationVector = Eigen::Vector3f(0, 0, 0);
 
-	//getting ideal rotation matrix
+	// 得到理想旋转矩阵
 	for (int i = 0; i < 3; i++)
 	{
 		for (int j = 0; j < 3; j++)
@@ -232,7 +242,7 @@ void computeMatrixError(float rotation, float translation, float & rotationError
 		}
 	}
 
-	//getting ideal translation matrix
+	// 得到理想的平移矩阵
 	for (int i = 0; i < 3; i++)
 	{
 		iealTranslationVector(i) = idealMatrix(i, 3);
@@ -245,7 +255,7 @@ void computeMatrixError(float rotation, float translation, float & rotationError
 	Eigen::Matrix3f realRotationMatrix = Eigen::Matrix3f::Identity();
 	Eigen::Vector3f realTranslationVector = Eigen::Vector3f(0, 0, 0);
 
-	//getting ideal rotation matrix
+	// 得到理想旋转矩阵
 	for (int i = 0; i < 3; i++)
 	{
 		for (int j = 0; j < 3; j++)
@@ -253,7 +263,7 @@ void computeMatrixError(float rotation, float translation, float & rotationError
 			realRotationMatrix(i, j) = realRtMatrix(i, j);
 		}
 	}
-	//getting real translation matrix
+	// 得到真实的平移矩阵
 	for (int i = 0; i < 3; i++)
 	{
 		realTranslationVector(i) = realRtMatrix(i, 3);
@@ -262,7 +272,7 @@ void computeMatrixError(float rotation, float translation, float & rotationError
 	cout << "real Rotation matrix:" << endl << realRotationMatrix << endl;
 	cout << "real Translatin vector:" << endl << realTranslationVector << endl;
 
-	//compute rotation error
+	// 计算旋转误差
 	Eigen::Matrix3f m = idealRotationMatrix * realRotationMatrix.inverse();
 	Eigen::SelfAdjointEigenSolver<Eigen::Matrix3f> es;
 	es.compute(m);
@@ -271,10 +281,10 @@ void computeMatrixError(float rotation, float translation, float & rotationError
 	if (tr < -3) tr = -3;
 	rotationError = acos((tr - 1) / 2) * 180.0 / M_PI;
 
-	//compute translation error
+	// 计算平移误差
 	translationError = (realTranslationVector - iealTranslationVector).norm();
 }
-```cpp
+```
 
 * **剔除边缘点**
 
@@ -292,7 +302,7 @@ void computeBoundaryPoints(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud,
 	double resolution,
 	pcl::PointCloud<pcl::PointXYZ>::Ptr &boundary_cloud)
 {
-	// compute normals; 
+	// 计算法线
 	pcl::search::Search<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
 	pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
 	pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normal_est;
@@ -301,9 +311,8 @@ void computeBoundaryPoints(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud,
 	normal_est.setKSearch(50);
 	normal_est.compute(*normals);
 	//normal_est.setViewPoint(0,0,0); 
-
-
-	//calculate boundary; 
+	
+	//计算边界
 	pcl::PointCloud<pcl::Boundary> boundary;
 	pcl::BoundaryEstimation<pcl::PointXYZ, pcl::Normal, pcl::Boundary> boundary_est;
 	boundary_est.setInputCloud(cloud);
@@ -348,7 +357,7 @@ void eliminateBoundary(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud,
 }
 
 #endif // ! _BOUNDARY_POINTS_
-```cpp
+```
 
 * **将点旋转平移**
 
@@ -360,11 +369,11 @@ tranform.h
 
 void MyTransformationPoint(pcl::PointXYZ &pt_in, pcl::PointXYZ &pt_out, float tx, float ty, float tz, float rx, float ry, float rz)
 {
-	////rotating and translating point cloud
-	////m and m1 are both the unit matrixes
+	////旋转和平移点云
+	////m和m1都是单位矩阵
 	Eigen::Matrix4f m = Eigen::Matrix4f::Identity();
 	Eigen::Matrix4f m1 = Eigen::Matrix4f::Identity();
-	//tx,ty,tz are translation values of x ,y and z axis
+	//tx、ty、tz是x、y和z轴的平移值
 	m1(0, 3) = tx;
 	m1(1, 3) = ty;
 	m1(2, 3) = tz;
@@ -408,4 +417,4 @@ void MyTransformationPoint(pcl::PointXYZ &pt_in, pcl::PointXYZ &pt_out, float tx
 	pt_out.y = static_cast<float> (m(1, 0) * pt.coeffRef(0) + m(1, 1) * pt.coeffRef(1) + m(1, 2) * pt.coeffRef(2) + m(1, 3));
 	pt_out.z = static_cast<float> (m(2, 0) * pt.coeffRef(0) + m(2, 1) * pt.coeffRef(1) + m(2, 2) * pt.coeffRef(2) + m(2, 3));
 }
-```cpp
+```

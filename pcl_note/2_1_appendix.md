@@ -103,6 +103,9 @@ pcl::io::loadPCDFile("/home/yxg/pcl/pcd/mid.pcd",*cloud);
 //点云法线估计器 ne，用于估计点云中点的法线信息
 pcl::NormalEstimation<pcl::PointXYZ,pcl::Normal> ne;  
 ne.setInputCloud(cloud); // 将先前加载的点云设置为法线估计器的输入
+
+// setInputCloud函数是用于设置点云处理对象的输入点云数据的成员函数。这个函数通常用于将点云数据传递给PCL中的各种算法或对象，以便进行进一步的处理或分析
+
 // 创建一个 KdTree 数据结构用于最近邻搜索
 pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>());
 ne.setSearchMethod(tree); // 设置法线估计中的搜索方法为 KdTre
