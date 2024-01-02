@@ -21,7 +21,7 @@ C.rows()          // size(C,1)        // number of rows
 C.cols()          // size(C,2)        // number of columns
 x(i)              // x(i+1)           // Matlab is 1-based
 C(i,j)            // C(i+1,j+1)       //
-```cpp
+```
 
 * ** Eigen 基础使用**
 
@@ -44,7 +44,7 @@ A << 1, 2, 3,     // Initialize A. The elements can also be
      7, 8, 9;     // and then the rows are stacked.
 B << A, A, A;     // B is three horizontally stacked A's.
 A.fill(10);       // Fill A with all 10's.
-```cpp
+```
 
 * **Eigen 特殊矩阵生成**
 
@@ -60,12 +60,12 @@ MatrixXd::Random(rows,cols)         // rand(rows,cols)*2-1        // MatrixXd::R
 C.setRandom(rows,cols)              // C = rand(rows,cols)*2-1
 VectorXd::LinSpaced(size,low,high)  // linspace(low,high,size)'
 v.setLinSpaced(size,low,high)       // v = linspace(low,high,size)'
-```cpp
+```
 
 * **Eigen 矩阵分块**
 
 ```cpp
-// Matrix slicing and blocks. All expressions listed here are read/write.
+// Matrix slicing and blocks. All expressions listed here are read/write. 矩阵切片和块。此处列出的所有表达式都是可读/写的。
 // Templated size versions are faster. Note that Matlab is 1-based (a size N
 // vector is x(1)...x(N)).
 // Eigen                           // Matlab
@@ -99,7 +99,7 @@ P.topLeftCorner<rows,cols>()       // P(1:rows, 1:cols)
 P.topRightCorner<rows,cols>()      // P(1:rows, end-cols+1:end)
 P.bottomLeftCorner<rows,cols>()    // P(end-rows+1:end, 1:cols)
 P.bottomRightCorner<rows,cols>()   // P(end-rows+1:end, end-cols+1:end)
-```cpp
+```
 
 * **Eigen 矩阵元素交换**
 
@@ -108,7 +108,7 @@ P.bottomRightCorner<rows,cols>()   // P(end-rows+1:end, end-cols+1:end)
 // Eigen                           // Matlab
 R.row(i) = P.col(j);               // R(i, :) = P(:, i)
 R.col(j1).swap(mat1.col(j2));      // R(:, [j1 j2]) = R(:, [j2, j1])
-```cpp
+```
 
 * **Eigen 矩阵转置**
 
@@ -121,7 +121,7 @@ R.diagonal()                       // diag(R)
 x.asDiagonal()                     // diag(x)
 R.transpose().colwise().reverse(); // rot90(R)
 R.conjugate()                      // conj(R)
-```cpp
+```
 
 * **Eigen 矩阵乘积**
 
@@ -134,44 +134,44 @@ a *= M;            R  = P + Q;      R  = P/s;
                    R *= Q;          R  = s*P;
                    R += Q;          R *= s;
                    R -= Q;          R /= s;
-```cpp
+```
 
 * **Eigen 矩阵单个元素操作**
 
 ```cpp
-// Vectorized operations on each element independently
-// Eigen                  // Matlab
-R = P.cwiseProduct(Q);    // R = P .* Q
-R = P.array() * s.array();// R = P .* s
-R = P.cwiseQuotient(Q);   // R = P ./ Q
-R = P.array() / Q.array();// R = P ./ Q
-R = P.array() + s.array();// R = P + s
-R = P.array() - s.array();// R = P - s
-R.array() += s;           // R = R + s
-R.array() -= s;           // R = R - s
-R.array() < Q.array();    // R < Q
-R.array() <= Q.array();   // R <= Q
-R.cwiseInverse();         // 1 ./ P
-R.array().inverse();      // 1 ./ P
-R.array().sin()           // sin(P)
-R.array().cos()           // cos(P)
-R.array().pow(s)          // P .^ s
-R.array().square()        // P .^ 2
-R.array().cube()          // P .^ 3
-R.cwiseSqrt()             // sqrt(P)
-R.array().sqrt()          // sqrt(P)
-R.array().exp()           // exp(P)
-R.array().log()           // log(P)
-R.cwiseMax(P)             // max(R, P)
-R.array().max(P.array())  // max(R, P)
-R.cwiseMin(P)             // min(R, P)
-R.array().min(P.array())  // min(R, P)
-R.cwiseAbs()              // abs(P)
-R.array().abs()           // abs(P)
-R.cwiseAbs2()             // abs(P.^2)
-R.array().abs2()          // abs(P.^2)
-(R.array() < s).select(P,Q);  // (R < s ? P : Q)
-```cpp
+// Vectorized operations on each element independently 独立地对每个元素进行矢量化运算
+// Eigen                           // Matlab
+R = P.cwiseProduct(Q);             // R = P .* Q
+R = P.array() * s.array();         // R = P .* s
+R = P.cwiseQuotient(Q);            // R = P ./ Q
+R = P.array() / Q.array();         // R = P ./ Q
+R = P.array() + s.array();         // R = P + s
+R = P.array() - s.array();         // R = P - s
+R.array() += s;                    // R = R + s
+R.array() -= s;                    // R = R - s
+R.array() < Q.array();             // R < Q
+R.array() <= Q.array();            // R <= Q
+R.cwiseInverse();                  // 1 ./ P
+R.array().inverse();               // 1 ./ P
+R.array().sin()                    // sin(P)
+R.array().cos()                    // cos(P)
+R.array().pow(s)                   // P .^ s
+R.array().square()                 // P .^ 2
+R.array().cube()                   // P .^ 3
+R.cwiseSqrt()                      // sqrt(P)
+R.array().sqrt()                   // sqrt(P)
+R.array().exp()                    // exp(P)
+R.array().log()                    // log(P)
+R.cwiseMax(P)                      // max(R, P)
+R.array().max(P.array())           // max(R, P)
+R.cwiseMin(P)                      // min(R, P)
+R.array().min(P.array())           // min(R, P)
+R.cwiseAbs()                       // abs(P)
+R.array().abs()                    // abs(P)
+R.cwiseAbs2()                      // abs(P.^2)
+R.array().abs2()                   // abs(P.^2)
+(R.array() < s).select(P,Q);       // (R < s ? P : Q)
+```
 
 * **Eigen 矩阵化简**
 
@@ -196,7 +196,7 @@ R.rowwise().all()         // all(R, 2)
 R.any()                   // any(R(:))
 R.colwise().any()         // any(R)
 R.rowwise().any()         // any(R, 2)
-```cpp
+```
 
 * **Eigen 矩阵点乘**
 
@@ -207,7 +207,7 @@ x.norm()                  // norm(x).    Note that norm(R) doesn't work in Eigen
 x.squaredNorm()           // dot(x, x)   Note the equivalence is not true for complex
 x.dot(y)                  // dot(x, y)
 x.cross(y)                // cross(x, y) Requires #include <Eigen/Geometry>
-```cpp
+```
 
 * **Eigen 矩阵类型转换**
 
@@ -220,7 +220,7 @@ A.cast<int>();                     // int32(A)
 A.real();                          // real(A)
 A.imag();                          // imag(A)
 // if the original type equals destination type, no work is done
-```cpp
+```
 
 * **Eigen 求解线性方程组 Ax = b**
 
@@ -236,7 +236,7 @@ x = A.svd() .solve(b));  // Stable, slowest. #include <Eigen/SVD>
 // .lu()   -> .matrixL() and .matrixU()
 // .qr()   -> .matrixQ() and .matrixR()
 // .svd()  -> .matrixU(), .singularValues(), and .matrixV()
-```cpp
+```
 
 * **Eigen 矩阵特征值**
 
@@ -248,4 +248,4 @@ EigenSolver<Matrix3d> eig(A);     // [vec val] = eig(A)
 eig.eigenvalues();                // diag(val)
 eig.eigenvectors();               // vec
 // For self-adjoint matrices use SelfAdjointEigenSolver<>
-```cpp
+```

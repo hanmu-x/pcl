@@ -2,7 +2,7 @@
 
 * **pcd文件数据举例**
 
-```
+```cpp
 # .PCD v.7 - Point Cloud Data file format
 VERSION .7
 FIELDS x y z rgb

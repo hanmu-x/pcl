@@ -42,11 +42,11 @@ int main()
 	system("pause");
 	return 0;
 }
-```cpp
+```
 
 * **SHOTLocalReferenceFrame**
 
-参考文献：shot描述子
+
 
 ```cpp
 #include <pcl/io/pcd_io.h>
@@ -69,4 +69,4 @@ int main()
 	system("pause");
 	return 0;
 }
-```cpp
+```
