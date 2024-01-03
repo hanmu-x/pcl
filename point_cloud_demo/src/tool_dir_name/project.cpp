@@ -7,9 +7,9 @@
 #include<pcl/point_types.h>
 #include<pcl/visualization/cloud_viewer.h>
 
-#include <pcl/console/time.h>  //pcl¼ÆËãÊ±¼ä
+#include <pcl/console/time.h>  //pclè®¡ç®—æ—¶é—´
 //pcl::console::TicToc time; time.tic();
-//+³ÌĞò¶Î +
+//+ç¨‹åºæ®µ +
 //cout << time.toc() / 1000 << "s" << endl;
 
 //using namespace pcl;
@@ -18,7 +18,7 @@
 
 void viewerOneOff(pcl::visualization::PCLVisualizer& viewer)
 {
-	viewer.setBackgroundColor(0, 0, 0); //ÉèÖÃ±³¾°ÑÕÉ«ÎªºÚÉ«
+	viewer.setBackgroundColor(0, 0, 0); //è®¾ç½®èƒŒæ™¯é¢œè‰²ä¸ºé»‘è‰²
 }
 
 bool tool_class::openPcd(std::string pcdFile)

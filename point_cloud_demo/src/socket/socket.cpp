@@ -4,17 +4,21 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
+
+#define MAX_BUFFER_SIZE  1024
+
+
 bool Socket::tcpServer(std::string ip, int port)
 {
 
 	return false;
 }
 
-// Í¬²½
+// åŒæ­¥
 bool Socket::tcpClientSync(std::string ip, int port)
 {
     bool status = false;
-    // WSAStartup() º¯Êı³õÊ¼»¯ÁËWinsock¿â
+    // WSAStartup() å‡½æ•°åˆå§‹åŒ–äº†Winsockåº“
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         std::cout << "Failed to initialize winsock" << std::endl;
@@ -22,7 +26,7 @@ bool Socket::tcpClientSync(std::string ip, int port)
     }
     while (true)
     {
-        // ´´½¨Ì×½Ó×Ö
+        // åˆ›å»ºå¥—æ¥å­—
         SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, 0);
         if (clientSocket == INVALID_SOCKET) {
             std::cout << "Failed to create socket" << std::endl;
@@ -30,7 +34,7 @@ bool Socket::tcpClientSync(std::string ip, int port)
             return false;
         }
 
-        // ÉèÖÃ·şÎñÆ÷ĞÅÏ¢
+        // è®¾ç½®æœåŠ¡å™¨ä¿¡æ¯
         sockaddr_in serverAddress;
         serverAddress.sin_family = AF_INET;
         serverAddress.sin_port = htons(port);
@@ -43,10 +47,10 @@ bool Socket::tcpClientSync(std::string ip, int port)
 
         while (true) 
         {
-            // Á¬½Óµ½·şÎñÆ÷
+            // è¿æ¥åˆ°æœåŠ¡å™¨
             if (connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR) {
                 std::cout << "Connection failed" << std::endl;
-                Sleep(5000); // µÈ´ı5ÃëºóÖØĞÂÁ¬½Ó
+                Sleep(5000); // ç­‰å¾…5ç§’åé‡æ–°è¿æ¥
                 continue;
             }
             while (true)
@@ -54,23 +58,23 @@ bool Socket::tcpClientSync(std::string ip, int port)
                 char buffer[1024];
                 memset(buffer, 0, sizeof(buffer));
 
-                // ½ÓÊÕÊı¾İ
+                // æ¥æ”¶æ•°æ®
                 if (recv(clientSocket, buffer, sizeof(buffer), 0) == SOCKET_ERROR) 
                 {
                     std::cout << "Failed to receive data" << std::endl;
                     continue;
                 }
-                // Êä³ö½ÓÊÕµ½µÄÊı¾İ
+                // è¾“å‡ºæ¥æ”¶åˆ°çš„æ•°æ®
                 std::cout << "Received data from server: " << buffer << std::endl;
-                Sleep(100); // µÈ´ı100ºÁÃëºóÖØĞÂÁ¬½Ó
+                Sleep(100); // ç­‰å¾…100æ¯«ç§’åé‡æ–°è¿æ¥
             }
-            // ¹Ø±ÕÌ×½Ó×Ö
-            Sleep(100); // µÈ´ı100ºÁÃëºóÖØĞÂÁ¬½Ó
+            // å…³é—­å¥—æ¥å­—
+            Sleep(100); // ç­‰å¾…100æ¯«ç§’åé‡æ–°è¿æ¥
             continue;
         }
 
         closesocket(clientSocket);
-        Sleep(3000); // µÈ´ı100ºÁÃëºóÖØĞÂÁ¬½Ó
+        Sleep(3000); // ç­‰å¾…100æ¯«ç§’åé‡æ–°è¿æ¥
 
     }
 
@@ -78,21 +82,20 @@ bool Socket::tcpClientSync(std::string ip, int port)
     return true;
 }
 
-static const int MAX_BUFFER_SIZE = 1024;
 
 static void CALLBACK asyncSocketCallback(DWORD error, DWORD transferredBytes, LPWSAOVERLAPPED overlapped, DWORD flags)
 {
     if (error == 0) {
-        // Òì²½²Ù×÷³É¹¦Íê³É
+        // å¼‚æ­¥æ“ä½œæˆåŠŸå®Œæˆ
         std::cout << "Async operation completed successfully" << std::endl;
     }
     else {
-        // Òì²½²Ù×÷³ö´í
+        // å¼‚æ­¥æ“ä½œå‡ºé”™
         std::cerr << "Async operation failed with error: " << error << std::endl;
     }
 }
 
-// Òì²½
+// å¼‚æ­¥
 bool Socket::tcpClientAsyn(std::string ip, int port)
 {
 
@@ -105,7 +108,7 @@ bool Socket::tcpClientAsyn(std::string ip, int port)
     SOCKET clientSocket;
     sockaddr_in serverAddress;
 
-    // ´´½¨Ì×½Ó×Ö
+    // åˆ›å»ºå¥—æ¥å­—
     clientSocket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
     if (clientSocket == INVALID_SOCKET) {
         std::cout << "Failed to create socket" << std::endl;
@@ -113,7 +116,7 @@ bool Socket::tcpClientAsyn(std::string ip, int port)
         return false;
     }
 
-    // ÉèÖÃ·şÎñÆ÷ĞÅÏ¢
+    // è®¾ç½®æœåŠ¡å™¨ä¿¡æ¯
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_port = htons(port);
     if (inet_pton(AF_INET, ip.c_str(), &(serverAddress.sin_addr)) <= 0) {
@@ -123,7 +126,7 @@ bool Socket::tcpClientAsyn(std::string ip, int port)
         return false;
     }
 
-    // Á¬½Óµ½·şÎñÆ÷
+    // è¿æ¥åˆ°æœåŠ¡å™¨
     if (connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR) {
         if (WSAGetLastError() != WSAEWOULDBLOCK) {
             std::cout << "Connection failed" << std::endl;
@@ -133,7 +136,7 @@ bool Socket::tcpClientAsyn(std::string ip, int port)
         }
     }
 
-    // Òì²½½ÓÊÕÊı¾İ
+    // å¼‚æ­¥æ¥æ”¶æ•°æ®
     WSAOVERLAPPED overlapped;
     ZeroMemory(&overlapped, sizeof(WSAOVERLAPPED));
     char buffer[MAX_BUFFER_SIZE];
@@ -152,7 +155,7 @@ bool Socket::tcpClientAsyn(std::string ip, int port)
         }
     }
 
-    // ·¢ËÍÊı¾İ
+    // å‘é€æ•°æ®
     std::string message = "Hello, server!";
     if (send(clientSocket, message.c_str(), message.size(), 0) == SOCKET_ERROR) {
         if (WSAGetLastError() != WSAEWOULDBLOCK) {
@@ -163,16 +166,16 @@ bool Socket::tcpClientAsyn(std::string ip, int port)
         }
     }
 
-    // µÈ´ıÒì²½²Ù×÷Íê³É
+    // ç­‰å¾…å¼‚æ­¥æ“ä½œå®Œæˆ
     DWORD result;
     if (WSAGetOverlappedResult(clientSocket, &overlapped, &receivedBytes, TRUE, &flags) == FALSE) {
         std::cout << "Failed to get overlapped result" << std::endl;
     }
 
-    // Êä³ö½ÓÊÕµ½µÄÊı¾İ
+    // è¾“å‡ºæ¥æ”¶åˆ°çš„æ•°æ®
     std::cout << "Received data from server: " << buffer << std::endl;
 
-    // ¹Ø±ÕÌ×½Ó×Ö
+    // å…³é—­å¥—æ¥å­—
     closesocket(clientSocket);
     WSACleanup();
 
@@ -186,14 +189,14 @@ bool Socket::udpServer(std::string ip, int port)
 	return false;
 }
 
-// Í¬²½
+// åŒæ­¥
 bool Socket::updClientSync(std::string ip, int port)
 {
 
 	return false;
 }
 
-// Òì²½
+// å¼‚æ­¥
 bool Socket::updClientAsyn(std::string ip, int port)
 {
 

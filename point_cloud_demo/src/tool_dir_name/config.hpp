@@ -29,10 +29,10 @@
 
 struct pyramid_config
 {
-	int begin_layer;  //¿ªÊ¼²ã
-	int end_layer;   // ½áÊø²ã
-	int image_width;  // Éú³ÉÍ¼Æ¬¿í¶È
-	int image_height; // Éú³ÉÍ¼Æ¬¸ß¶È
+	int begin_layer;  //å¼€å§‹å±‚
+	int end_layer;   // ç»“æŸå±‚
+	int image_width;  // ç”Ÿæˆå›¾ç‰‡å®½åº¦
+	int image_height; // ç”Ÿæˆå›¾ç‰‡é«˜åº¦
 };
 struct evel_color
 {
@@ -47,7 +47,7 @@ typedef std::vector<evel_color> rander_config;
 class Config
 {
 public:
-	// dem ÎÄ¼şÂ·¾¶
+	// dem æ–‡ä»¶è·¯å¾„
 	std::string dem_file;
 	float top_alpha;
 	int tif_width;

@@ -14,14 +14,14 @@ int main()
 
 	std::filesystem::path data_1(DEFAULT_DATA_DIR);
     data_1 += "/tuzi.pcd";
-
     std::filesystem::path data_2(DEFAULT_DATA_DIR);
     data_2 += "/tuzi_copy.pcd";
-	// //´ò¿ªÒ»¸öpcd
-	tool_class::copyPcd(data_1.string(), data_2.string());
+	// //æ‰“å¼€ä¸€ä¸ªpcd
+    //tool_class::openPcd(data_1.string());
+	//tool_class::copyPcd(data_1.string(), data_2.string());
 
-    std::string ip = "192.168.142.1"; // ·şÎñÆ÷IPµØÖ·
-    int port = 8080; // ·şÎñÆ÷¶Ë¿ÚºÅ
+    std::string ip = "192.168.142.1"; // æœåŠ¡å™¨IPåœ°å€
+    int port = 8080; // æœåŠ¡å™¨ç«¯å£å·
 
     //if (Socket::tcpClientSync(ip, port))
     //if (Socket::tcpClientAsyn(ip, port))
@@ -103,51 +103,51 @@ int main()
 //#include <pcl/io/pcd_io.h>
 //
 //#include <vtkAutoInit.h>
-//VTK_MODULE_INIT(vtkRenderingOpenGL);//ÀÏ°æµÄ´Ë´¦¿ÉÄÜÊÇvtkRenderingOpenGL
+//VTK_MODULE_INIT(vtkRenderingOpenGL);//è€ç‰ˆçš„æ­¤å¤„å¯èƒ½æ˜¯vtkRenderingOpenGL
 //VTK_MODULE_INIT(vtkInteractionStyle);
 //VTK_MODULE_INIT(vtkRenderingFreeType);
 //
 //int user_data;
 
-////¸Ã»Øµ÷º¯Êı£¬ÔÚÖ÷º¯ÊıÖĞÖ»×¢²áÒ»´Î £¬¸Ãº¯ÊıÖ»ÊµÏÖ¶Ô¿ÉÊÓ»¯¶ÔÏó±³¾°ÑÕÉ«µÄÉèÖÃ
+////è¯¥å›è°ƒå‡½æ•°ï¼Œåœ¨ä¸»å‡½æ•°ä¸­åªæ³¨å†Œä¸€æ¬¡ ï¼Œè¯¥å‡½æ•°åªå®ç°å¯¹å¯è§†åŒ–å¯¹è±¡èƒŒæ™¯é¢œè‰²çš„è®¾ç½®
 //void viewerOneOff(pcl::visualization::PCLVisualizer& viewer)
 //{
-//    viewer.setBackgroundColor(1.0, 0.5, 1.0);//ÉèÖÃ±³¾°ÑÕÉ«
-//    std::cout << "ÎÒÖ»Ö´ĞĞÒ»´Î" << std::endl;
+//    viewer.setBackgroundColor(1.0, 0.5, 1.0);//è®¾ç½®èƒŒæ™¯é¢œè‰²
+//    std::cout << "æˆ‘åªæ‰§è¡Œä¸€æ¬¡" << std::endl;
 //
 //}
-////¸Ã»Øµ÷º¯Êı£¬ÔÚÖ÷º¯ÊıÖĞ×¢²áºóÃ¿Ö¡ÏÔÊ¾¶¼Ö´ĞĞÒ»´Î£¬º¯Êı¾ßÌåÊµÏÖÔÚ¿ÉÊÓ»¯¶ÔÏóÖĞÌí¼ÓÒ»¸öË¢ĞÂÏÔÊ¾×Ö·û´®
+////è¯¥å›è°ƒå‡½æ•°ï¼Œåœ¨ä¸»å‡½æ•°ä¸­æ³¨å†Œåæ¯å¸§æ˜¾ç¤ºéƒ½æ‰§è¡Œä¸€æ¬¡ï¼Œå‡½æ•°å…·ä½“å®ç°åœ¨å¯è§†åŒ–å¯¹è±¡ä¸­æ·»åŠ ä¸€ä¸ªåˆ·æ–°æ˜¾ç¤ºå­—ç¬¦ä¸²
 //void viewerPsycho(pcl::visualization::PCLVisualizer& viewer)
 //{
 //    static unsigned count = 0;
 //    std::stringstream ss;
 //    ss << "play the" << count++;
-//    viewer.removeShape("text", 0);//ÒÆ³ı¾ÉµÄÎÄ×Ö
-//    viewer.addText(ss.str(), 200, 300, "text", 0);//Ìí¼ÓĞÂÎÄ×Ö
+//    viewer.removeShape("text", 0);//ç§»é™¤æ—§çš„æ–‡å­—
+//    viewer.addText(ss.str(), 200, 300, "text", 0);//æ·»åŠ æ–°æ–‡å­—
 //}
 //
 //int main()
 //{
 //    std::filesystem::path data_1(DEFAULT_DATA_DIR);
 //    data_1 += "/tuzi.pcd";
-//    //´´½¨µãÔÆ¶ÔÏó
+//    //åˆ›å»ºç‚¹äº‘å¯¹è±¡
 //    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
-//    pcl::io::loadPCDFile(data_1.string().c_str(), *cloud);//¶ÁÈ¡pcdÎÄ¼şµ½µãÔÆ¶ÔÏó
+//    pcl::io::loadPCDFile(data_1.string().c_str(), *cloud);//è¯»å–pcdæ–‡ä»¶åˆ°ç‚¹äº‘å¯¹è±¡
 //
-//    pcl::visualization::CloudViewer viewer("Cloud Viewer");//³õÊ¼»¯¿ÉÊÓ»¯¶ÔÏó
+//    pcl::visualization::CloudViewer viewer("Cloud Viewer");//åˆå§‹åŒ–å¯è§†åŒ–å¯¹è±¡
 //
-//    //showCloudº¯ÊıÊÇÍ¬²½µÄ£¬äÖÈ¾ÏÔÊ¾Ö®Ç°³ÌĞò»áÒ»Ö±ÔÚ´ËµÈºò
+//    //showCloudå‡½æ•°æ˜¯åŒæ­¥çš„ï¼Œæ¸²æŸ“æ˜¾ç¤ºä¹‹å‰ç¨‹åºä¼šä¸€ç›´åœ¨æ­¤ç­‰å€™
 //    viewer.showCloud(cloud);
 //
-//    //ÏÂÃæµÄÄÚÈİÊÇÒ»¸öÄ£°å£¬Ö§³ÖÓÃ»§½øĞĞ¸ü¸´ÔÓµÄ²Ù×÷¡£
-//    //¸Ã×¢²áº¯ÊıÔÚ¿ÉÊÓ»¯µÄÊ±ºòÖ»Ö´ĞĞÒ»´Î
+//    //ä¸‹é¢çš„å†…å®¹æ˜¯ä¸€ä¸ªæ¨¡æ¿ï¼Œæ”¯æŒç”¨æˆ·è¿›è¡Œæ›´å¤æ‚çš„æ“ä½œã€‚
+//    //è¯¥æ³¨å†Œå‡½æ•°åœ¨å¯è§†åŒ–çš„æ—¶å€™åªæ‰§è¡Œä¸€æ¬¡
 //    viewer.runOnVisualizationThreadOnce(viewerOneOff);//
 //
-//    //¸Ã×¢²áº¯ÊıÔÚäÖÈ¾Êä³öÊ±Ã¿Ö¡¶¼µ÷ÓÃ
+//    //è¯¥æ³¨å†Œå‡½æ•°åœ¨æ¸²æŸ“è¾“å‡ºæ—¶æ¯å¸§éƒ½è°ƒç”¨
 //    viewer.runOnVisualizationThread(viewerPsycho);
 //    while (!viewer.wasStopped())
 //    {
-//        //´Ë´¦¿ÉÒÔÌí¼ÓÆäËû´¦Àí
+//        //æ­¤å¤„å¯ä»¥æ·»åŠ å…¶ä»–å¤„ç†
 //        user_data++;
 //    }
 //    return 0;
