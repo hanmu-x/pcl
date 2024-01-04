@@ -20,17 +20,16 @@ int main()
     //tool_class::openPcd(data_1.string());
 	//tool_class::copyPcd(data_1.string(), data_2.string());
 
-    std::string ip = "192.168.142.1"; // 服务器IP地址
+    std::string ip = "192.168.0.163"; // 服务器IP地址
     int port = 8080; // 服务器端口号
-
-    //if (Socket::tcpClientSync(ip, port))
-    //if (Socket::tcpClientAsyn(ip, port))
-    //{
-    //    std::cout << "TCP client executed successfully" << std::endl;
-    //}
-    //else {
-    //    std::cerr << "TCP client failed" << std::endl;
-    //}
+    //if (Socket::tcpClientSync(ip, port))  // 同步
+    if (Socket::tcpClientAsyn(ip, port))  // 异步
+     {
+        std::cout << "TCP client executed successfully" << std::endl;
+    }
+    else {
+        std::cout << "TCP client failed" << std::endl;
+    }
 
     return 0;
 }
