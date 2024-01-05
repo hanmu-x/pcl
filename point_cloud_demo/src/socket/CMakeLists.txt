@@ -11,3 +11,7 @@ foreach(dirname ${CMAKE_CURRENT_SOURCE_DIR})
 endforeach()
 
 add_library(${PROJECT_NAME} STATIC ${SRC})
+
+
+#find_package(asio CONFIG REQUIRED)
+#target_link_libraries(${PROJECT_NAME} STATIC asio::asio)
