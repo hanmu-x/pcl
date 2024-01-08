@@ -1,14 +1,15 @@
 #include "socket.h"
 
 #include <cstring>
-#include <winsock2.h>
 #include <ws2tcpip.h>
 #include <thread>
 #include <chrono>
 
 
 
-#define MAX_BUFFER_SIZE  1024
+#define MAX_BUFFER_SIZE   1024
+#define RECONNECT_TIME    1000
+#define RE_READ_TIME      10
 
 
 bool Socket::tcpServer(std::string ip, int port)
@@ -55,7 +56,8 @@ bool Socket::tcpClientSync(std::string ip, int port)
             if (is_con == SOCKET_ERROR) 
             {
                 std::cout << "Connection failed" << std::endl;
-                Sleep(5000); // 等待5秒后重新连接
+                std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECT_TIME)); // 等待1秒后重新连接
+
                 continue;
             }
             while (true)
@@ -73,21 +75,22 @@ bool Socket::tcpClientSync(std::string ip, int port)
                 else if((int)is_rec < 0)
                 {
                     std::cout << "Failed to receive data" << std::endl;
-                    continue;
                 }
                 else
                 {
                     // 输出接收到的数据
                     std::cout << "Received data from server: " << buffer << std::endl;
-                    Sleep(100); // 等待100毫秒后重新连接
+                    // 等待100毫秒后重新连接
                 }
+                std::this_thread::sleep_for(std::chrono::milliseconds(RE_READ_TIME)); // 等待1秒后重新连接
             }
-            Sleep(100); // 跳出循环关闭socket 然后从新建立socket从新连接
+            std::this_thread::sleep_for(std::chrono::milliseconds(RE_READ_TIME)); // 等待1秒后重新连接
+            // 跳出循环关闭socket 然后从新建立socket从新连接
             break;
         }
 
         closesocket(clientSocket);
-        Sleep(3000); // 等待100毫秒后重新连接
+        std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECT_TIME)); // 等待1秒后重新连接
 
     }
 
@@ -96,34 +99,37 @@ bool Socket::tcpClientSync(std::string ip, int port)
 }
 
 
-bool g_isRunning = true;
 
-void DataReceiver(SOCKET clientSocket)
+void Socket::DataReceiver(SOCKET clientSocket)
 {
+    std::unique_lock lock_t(m_lock);
     char buffer[1024];
-    while (g_isRunning)
+    while (is_Running)
     {
         memset(buffer, 0, sizeof(buffer));
         int is_rec = recv(clientSocket, buffer, sizeof(buffer), 0);
         if (is_rec == 0)
         {
             std::cout << "Server disconnection and reconnection" << std::endl;
+            is_Running = false;
             break;
         }
         else if (is_rec < 0)
         {
             std::cout << "Failed to receive data" << std::endl;
-            break;
         }
         else
         {
             std::cout << "Received data from server: " << buffer << std::endl;
             // 处理接收到的数据
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(RE_READ_TIME));
     }
     closesocket(clientSocket);
+    lock_t.unlock();
     return;
 }
+
 
 
 bool Socket::tcpClientAsyn(std::string ip, int port)
@@ -157,42 +163,35 @@ bool Socket::tcpClientAsyn(std::string ip, int port)
             return false;
         }
 
-        while (true)
+        is_Running = true;
+        while (is_Running)
         {
             // 连接到服务器
             int is_con = connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
             if (is_con == SOCKET_ERROR)
             {
                 std::cout << "Connection failed" << std::endl;
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // 等待1秒后重新连接
+                std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECT_TIME)); // 等待1秒后重新连接
                 break;
             }
             else
             {
                 std::cout << "Connected to server" << std::endl;
-                std::thread receiverThread(DataReceiver, clientSocket);
+                receiverThread = std::thread(&Socket::DataReceiver, this, clientSocket);
                 receiverThread.detach();
 
                 int n = 0;
-                while (true)
+                while (is_Running)
                 {
                     std::cout << n++ << std::endl;
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // 等待1秒后重新连接
-
-                    // 检查连接状态
-                    int error = 0;
-                    int errorLen = sizeof(error);
-                    int ret = getsockopt(clientSocket, SOL_SOCKET, SO_ERROR, (char*)&error, &errorLen);
-                    if (ret == SOCKET_ERROR || error != 0)
-                    {
-                        break;
-                    }
+                    std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECT_TIME)); // 等待1秒后重新连接
                 }
+
             }
         }
 
         closesocket(clientSocket);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // 等待1秒后重新连接
+        std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECT_TIME)); // 等待1秒后重新连接
     }
 
     WSACleanup();

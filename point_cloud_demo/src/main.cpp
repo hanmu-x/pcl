@@ -22,8 +22,9 @@ int main()
 
     std::string ip = "192.168.0.163"; // 服务器IP地址
     int port = 8080; // 服务器端口号
+    Socket so;
     //if (Socket::tcpClientSync(ip, port))  // 同步
-    if (Socket::tcpClientAsyn(ip, port))  // 异步
+    if (so.tcpClientAsyn(ip, port))  // 异步
      {
         std::cout << "TCP client executed successfully" << std::endl;
     }
