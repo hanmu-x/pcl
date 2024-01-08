@@ -22,10 +22,18 @@ int main()
 
     std::string ip = "192.168.0.163"; // 服务器IP地址
     int port = 8080; // 服务器端口号
-    Socket so;
-    //if (Socket::tcpClientSync(ip, port))  // 同步
-    if (so.tcpClientAsyn(ip, port))  // 异步
-     {
+    //Socket so;
+    ////if (Socket::tcpClientSync(ip, port))  // 同步
+    //if (so.tcpClientAsyn(ip, port))  // 异步
+    // {
+    //    std::cout << "TCP client executed successfully" << std::endl;
+    //}
+    //else {
+    //    std::cout << "TCP client failed" << std::endl;
+    //}
+
+    if (Socket::updClientSync(ip, port))  // 同步
+    {
         std::cout << "TCP client executed successfully" << std::endl;
     }
     else {
@@ -33,7 +41,18 @@ int main()
     }
 
     return 0;
+
+
 }
+
+
+
+
+
+
+
+
+
 
 
 //#include <pcl/io/pcd_io.h>

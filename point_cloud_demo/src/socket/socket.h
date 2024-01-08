@@ -43,7 +43,7 @@ public:
 	/// <param name="ip"></param>
 	/// <param name="port"></param>
 	/// <returns></returns>
-	bool udpServer(std::string ip, int port);
+    static bool udpServer(std::string ip, int port);
 
 	/// <summary>
 	/// 同步 UDP socket 客户端
@@ -51,7 +51,7 @@ public:
 	/// <param name="ip"></param>
 	/// <param name="port"></param>
 	/// <returns></returns>
-	bool updClientSync(std::string ip, int port);
+    static bool updClientSync(std::string ip, int port);
 
 	/// <summary>
 	/// 异步 UDP socket 客户端
@@ -59,7 +59,7 @@ public:
 	/// <param name="ip"></param>
 	/// <param name="port"></param>
 	/// <returns></returns>
-	bool updClientAsyn(std::string ip, int port);
+    static bool updClientAsyn(std::string ip, int port);
 
 
 
