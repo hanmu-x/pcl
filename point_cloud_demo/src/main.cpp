@@ -9,41 +9,71 @@
 
 #include<iostream>
 
-int main() 
-{
 
-	std::filesystem::path data_1(DEFAULT_DATA_DIR);
+int main()
+{
+    std::filesystem::path data_1(DEFAULT_DATA_DIR);
     data_1 += "/tuzi.pcd";
     std::filesystem::path data_2(DEFAULT_DATA_DIR);
     data_2 += "/tuzi_copy.pcd";
-	// //打开一个pcd
-    //tool_class::openPcd(data_1.string());
-	//tool_class::copyPcd(data_1.string(), data_2.string());
 
-    std::string ip = "192.168.0.163"; // 服务器IP地址
-    int port = 8080; // 服务器端口号
-    //Socket so;
-    ////if (Socket::tcpClientSync(ip, port))  // 同步
-    //if (so.tcpClientAsyn(ip, port))  // 异步
-    // {
-    //    std::cout << "TCP client executed successfully" << std::endl;
-    //}
-    //else {
-    //    std::cout << "TCP client failed" << std::endl;
-    //}
+    tool_class::link(data_1.string(), data_2.string());
 
-    if (Socket::updClientSync(ip, port))  // 同步
-    {
-        std::cout << "TCP client executed successfully" << std::endl;
-    }
-    else {
-        std::cout << "TCP client failed" << std::endl;
-    }
-
-    return 0;
-
-
+	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//int main() 
+//{
+//
+//	std::filesystem::path data_1(DEFAULT_DATA_DIR);
+//    data_1 += "/tuzi.pcd";
+//    std::filesystem::path data_2(DEFAULT_DATA_DIR);
+//    data_2 += "/tuzi_copy.pcd";
+//	// //打开一个pcd
+//    //tool_class::openPcd(data_1.string());
+//	//tool_class::copyPcd(data_1.string(), data_2.string());
+//
+//    std::string ip = "192.168.0.163"; // 服务器IP地址
+//    int port = 8080; // 服务器端口号
+//    //Socket so;
+//    ////if (Socket::tcpClientSync(ip, port))  // 同步
+//    //if (so.tcpClientAsyn(ip, port))  // 异步
+//    // {
+//    //    std::cout << "TCP client executed successfully" << std::endl;
+//    //}
+//    //else {
+//    //    std::cout << "TCP client failed" << std::endl;
+//    //}
+//
+//    if (Socket::updClientSync(ip, port))  // 同步
+//    {
+//        std::cout << "TCP client executed successfully" << std::endl;
+//    }
+//    else {
+//        std::cout << "TCP client failed" << std::endl;
+//    }
+//
+//    return 0;
+//
+//
+//}
 
 
 

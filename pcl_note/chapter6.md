@@ -10,7 +10,7 @@ PCL中类`pcl::KdTree<PointT>`是kd-tree数据结构的实现。并且提供基�
 
 `pcl::search::KdTree<PointT>`是`pcl::search::Search< PointT >`的子类，是`pcl::KdTree<PointT>`的包装类。包含(1) k 近邻搜索；(2) 邻域半径搜索。
 
-```
+```cpp
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 
@@ -55,7 +55,7 @@ int main()
 
 `pcl::KdTreeFLANN<PointT>`是`pcl::KdTree<PointT>`的子类，可以实现同样的功能。
 
-```
+```cpp
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 // 包含相关头文件

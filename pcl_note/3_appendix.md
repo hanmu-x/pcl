@@ -23,7 +23,7 @@ x(i)              // x(i+1)           // Matlab is 1-based
 C(i,j)            // C(i+1,j+1)       //
 ```
 
-* ** Eigen 基础使用**
+* **Eigen 基础使用**
 
 ```cpp
 // Basic usage
@@ -113,7 +113,7 @@ R.col(j1).swap(mat1.col(j2));      // R(:, [j1 j2]) = R(:, [j2, j1])
 * **Eigen 矩阵转置**
 
 ```cpp
-// Views, transpose, etc; all read-write except for .adjoint().
+// Views, transpose, etc; all read-write except for .adjoint(). 视图、转置等；除了.adjaint（）之外的所有读写操作。
 // Eigen                           // Matlab
 R.adjoint()                        // R'
 R.transpose()                      // R.' or conj(R')

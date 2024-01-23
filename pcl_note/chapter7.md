@@ -10,7 +10,7 @@ PCLVisualizer是PCL可视化3D点云的主要类。其内部实现了添加各�
 
 **基础显示功能：** 显示点云、网格、设置颜色、连线
 
-```
+```cpp
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/point_types.h>
@@ -76,7 +76,7 @@ int main()
 
 	+ 按键事件
 	
-```
+```cpp
 #include <pcl/io/pcd_io.h>
 #include <pcl/visualization/pcl_visualizer.h>
 
@@ -136,7 +136,7 @@ int main(int argc, char** argv)
 
 	+ 点选取事件
 
-```
+```cpp
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
@@ -195,7 +195,7 @@ int main(int argc, char** argv)
 
 	+ 区域选取事件
 
-```
+```cpp
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
@@ -259,7 +259,7 @@ int main(int argc, char** argv)
 
 pcl可以将显示区域分割，从(xmin,ymin)到(xmax,ymax)一个矩形区域，范围是（0，1）。左下角(0,0)，右上角(1,1)。之前所有的函数都支持区域显示。
 
-```
+```cpp
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 // 包含相关头文件
@@ -295,7 +295,7 @@ int main()
 
 * **pcl::visualization::CloudViewer**
 
-```
+```cpp
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 // 包含相关头文件

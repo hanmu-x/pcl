@@ -22,7 +22,7 @@
 
 PointWithRange除了range包含从所获得的视点到采样点的距离测量值之外，其它与PointXYZI类似。
 
-```
+```cpp
 union
 {
     float data[4];
@@ -48,7 +48,7 @@ union
 
 ointWithViewpoint除了vp_x、vp_y和vp_z以三维点表示所获得的视点之外，其它与PointXYZI一样。
 
-```
+```cpp
 union
 {
     float data[4];
@@ -76,7 +76,7 @@ union
 
 MomentInvariants是一个包含采样曲面上面片的三个不变矩的point类型，描述面片上质量的分布情况。查看MomentInvariantsEstimation以获得更多信息。
 
-```
+```cpp
 struct
 {
     float j1,j2,j3;
@@ -88,7 +88,7 @@ struct
 
 PrincipalRadiiRSD是一个包含曲面块上两个RSD半径的point类型，查看RSDEstimation以获得更多信息。
 
-```
+```cpp
 struct
 {
     float r_min,r_max;
@@ -100,7 +100,7 @@ struct
 
 Boundary存储一个点是否位于曲面边界上的简单point类型，查看BoundaryEstimation以获得更多信息。
 
-```
+```cpp
 struct
 {
     uint8_t boundary_point;
@@ -111,7 +111,7 @@ struct
 
 PrincipalCurvatures包含给定点主曲率的简单point类型。查看PrincipalCurvaturesEstimation以获得更多信息。
 
-```
+```cpp
 struct
 {
     union
@@ -133,7 +133,7 @@ struct
 
 PFHSignature125包含给定点的PFH（点特征直方图）的简单point类型,查看PFHEstimation以获得更多信息。
 
-```
+```cpp
 struct
 {
     float histogram[125];
@@ -144,7 +144,7 @@ struct
 
 FPFHSignature33包含给定点的FPFH（快速点特征直方图）的简单point类型，查看FPFHEstimation以获得更多信息。
 
-```
+```cpp
 struct
 {
     float histogram[33];
@@ -155,7 +155,7 @@ struct
 
 VFHSignature308包含给定点VFH（视点特征直方图）的简单point类型，查看VFHEstimation以获得更多信息。
 
-```
+```cpp
 struct
 {
     float histogram[308];
@@ -166,7 +166,7 @@ struct
 
 Narf36包含给定点NARF（归一化对齐半径特征）的简单point类型，查看NARFEstimation以获得更多信息。
 
-```
+```cpp
 struct
 {
     float x,y,z,roll,pitch,yaw;
@@ -178,7 +178,7 @@ struct
 
 BorderDescription包含给定点边界类型的简单point类型，看BorderEstimation以获得更多信息。
 
-```
+```cpp
 struct
 {
     int x,y;
@@ -190,7 +190,7 @@ struct
 
 IntensityGradient包含给定点强度的梯度point类型，查看IntensityGradientEstimation以获得更多信息。
 
-```
+```cpp
 struct
 {
     union
@@ -210,7 +210,7 @@ struct
 
 Histogram用来存储一般用途的n维直方图。
 
-```
+```cpp
 template<int N>
 struct Histogram
 {
@@ -222,7 +222,7 @@ struct Histogram
 
 PointWithScale除了scale表示某点用于几何操作的尺度（例如，计算最近邻所用的球体半径，窗口尺寸等等），其它的和PointXYZI一样。
 
-```
+```cpp
 struct
 {
     union
@@ -243,7 +243,7 @@ struct
 
 PointSurfel存储XYZ坐标、曲面法线、RGB信息、半径、可信度和曲面曲率的复杂point类型。
 
-```
+```cpp
 union
 {
     float data[4];

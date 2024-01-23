@@ -16,10 +16,15 @@ public:
 	/// <returns></returns>
 	static bool openPcd(std::string pcdFile);
 
-
+	/// <summary>
+	/// 复制点云
+	/// </summary>
+	/// <param name="fromPcd"></param>
+	/// <param name="toPcd"></param>
+	/// <returns></returns>
 	static bool copyPcd(std::string fromPcd, std::string toPcd);
 
-
+	static bool link(std::string fpcd, std::string spcd);
 
 
 
