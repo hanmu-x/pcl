@@ -2,7 +2,7 @@
 
 该代码中完成了提取关键点、特征描述、计算匹配对与旋转平移矩阵、显示等操作。
 
-```
+```cpp
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 // 包含相关头文件

@@ -9,7 +9,7 @@ PCL中pcl_keypoints库目前提供几种常用的关键点检测算法，下面�
 参考文献：
 Yu Zhong, “Intrinsic shape signatures: A shape descriptor for 3D object recognition,”Computer Vision Workshops (ICCV Workshops), 2009 IEEE 12th International Conference on ,vol., no., pp.689-696, Sept. 27 2009-Oct. 4 2009
 
-```
+```cpp
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 // 包含相关头文件
@@ -53,7 +53,7 @@ int main(int argc, char** argv)
 
 HarrisKeypoint3D是对2D的Harris提取关键点算法的一个三维扩展。
 
-```
+```cpp
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 // 包含相关头文件
@@ -95,7 +95,7 @@ int main(int argc, char** argv)
 
 SIFTKeypoint是对2D的sift算法的一个扩展。参考：David G. Lowe, "Distinctive image features from scale-invariant keypoints," International Journal of Computer Vision, 60, 2 (2004), pp. 91-110.
 
-```
+```cpp
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 // 包含相关头文件

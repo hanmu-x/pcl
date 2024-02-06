@@ -13,7 +13,7 @@
 贪婪投影三角化算法原理是处理一系列可以使网格“生长扩大”的点（边缘点），延伸这些点直到所有符合几何正确性和拓扑正确性的点都被连上。该算法的优点是可以处理来自一个或者多个扫描仪扫描得到并且有多个连接处的散乱点云。但该算法也有一定的局限性，它更适用于采样点云来自于表面连续光滑的曲面并且点云密度变化比较均匀的情况。
 
 
-```
+```cpp
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/kdtree/kdtree_flann.h>
@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 
 泊松曲面重建基于泊松方程。根据泊松方程使用矩阵迭代求出近似解，采用移动立方体算法提取等值面，对所测数据点集重构出被测物体的模型，泊松方程在边界处的误差为零，因此得到的模型不存在假的表面框。(http://blog.csdn.net/jennychenhit/article/details/52126156?locationNum=8)
 
-```
+```cpp
 #include <pcl/surface/poisson.h>
 
 pcl::Poisson<pcl::PointNormal> pn;
@@ -114,7 +114,7 @@ pn.performReconstruction(mesh);
 
 MarchingCubes(移动立方体)算法是目前三围数据场等值面生成中最常用的方法。它实际上是一个分而治之的方法，把等值面的抽取分布于每个体素中进行。对于每个被处理的体素，以三角面片逼近其内部的等值面片。每个体素是一个小立方体，构造三角面片的处理过程对每个体素都“扫描”一遍，就好像一个处理器在这些体素上移动一样，由此得名移动立方体算法。
 
-```
+```cpp
 #include <pcl/surface/marching_cubes_hoppe.h>
 
 pcl::MarchingCubes<pcl::PointNormal>::Ptr mc(new pcl::MarchingCubesHoppe<pcl::PointNormal>);
@@ -138,7 +138,7 @@ mc->reconstruct(mesh);
 
 虽说此类放在了Surface下面，但是通过反复的研究与使用，发现此类并不能输出拟合后的表面，不能生成Mesh或者Triangulations，只是将点云进行了MLS的映射，使得输出的点云更加平滑，进行上采样和计算法向量。
 
-```
+```cpp
 #include <iostream>
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>

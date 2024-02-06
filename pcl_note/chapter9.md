@@ -2,7 +2,7 @@
 
 表面法线是几何体表面的重要属性，属于特征描述范畴，由于下章关键点需要此操作，所以提前给出用法。
 
-```
+```cpp
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 // 包含相关头文件

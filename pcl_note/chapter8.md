@@ -12,7 +12,7 @@ PCL点云格式分为有序点云和无序点云，针对有序点云提供了�
 
 * **VoxelGrid、UniformSampling**
 
-```
+```cpp
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 // 包含相关头文件
@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 
 * **双边滤波**
 
-```
+```cpp
 #include <iostream>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>

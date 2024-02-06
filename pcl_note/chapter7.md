@@ -35,7 +35,7 @@ int main()
 
 	// --- 显示点云数据 ----
 	// "cloud1" 为显示id，默认cloud,显示多个点云时用默认会报警告。
-	viewer.addPointCloud(cloud1, "cloud1"); 
+	viewer.addPointCloud(cloud1, "cloud1");
 
 	pcl::visualization::PointCloudColorHandlerCustom<PointT> red(cloud2, 255, 0, 0); // rgb
 	// 将点云设置颜色，默认白色
