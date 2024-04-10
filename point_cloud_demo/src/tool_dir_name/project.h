@@ -10,14 +10,14 @@ class tool_class
 public:
 
 	/// <summary>
-	/// 鍙鍖栧睍绀簆cd鏂囦欢
+	/// 可视化展示pcd文件
 	/// </summary>
-	/// <param name="pcdFile">cpd鏂囦欢璺緞</param>
+	/// <param name="pcdFile">cpd文件路径</param>
 	/// <returns></returns>
 	static bool openPcd(std::string pcdFile);
 
 	/// <summary>
-	/// 澶嶅埗鐐逛簯
+	/// 复制点云
 	/// </summary>
 	/// <param name="fromPcd"></param>
 	/// <param name="toPcd"></param>
