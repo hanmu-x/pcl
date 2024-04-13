@@ -14,11 +14,11 @@ bool Socket::tcpServer(std::string ip, int port)
     return false;
 }
 
-// Í¬²½
+// åŒæ­¥
 bool Socket::tcpClientSync(std::string ip, int port)
 {
     bool status = false;
-    // WSAStartup() º¯Êı³õÊ¼»¯ÁËWinsock¿â
+    // WSAStartup() å‡½æ•°åˆå§‹åŒ–äº†Winsockåº“
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
     {
@@ -27,7 +27,7 @@ bool Socket::tcpClientSync(std::string ip, int port)
     }
     while (true)
     {
-        // ´´½¨Ì×½Ó×Ö
+        // åˆ›å»ºå¥—æ¥å­—
         SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, 0);
         if (clientSocket == INVALID_SOCKET)
         {
@@ -36,7 +36,7 @@ bool Socket::tcpClientSync(std::string ip, int port)
             return false;
         }
 
-        // ÉèÖÃ·şÎñÆ÷ĞÅÏ¢
+        // è®¾ç½®æœåŠ¡å™¨ä¿¡æ¯
         sockaddr_in serverAddress;
         serverAddress.sin_family = AF_INET;
         serverAddress.sin_port = htons(port);
@@ -50,12 +50,12 @@ bool Socket::tcpClientSync(std::string ip, int port)
 
         while (true)
         {
-            // Á¬½Óµ½·şÎñÆ÷
+            // è¿æ¥åˆ°æœåŠ¡å™¨
             int is_con = connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
             if (is_con == SOCKET_ERROR)
             {
                 std::cout << "Connection failed" << std::endl;
-                std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECT_TIME));  // µÈ´ı1ÃëºóÖØĞÂÁ¬½Ó
+                std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECT_TIME));  // ç­‰å¾…1ç§’åé‡æ–°è¿æ¥
 
                 continue;
             }
@@ -64,7 +64,7 @@ bool Socket::tcpClientSync(std::string ip, int port)
                 char buffer[1024];
                 memset(buffer, 0, sizeof(buffer));
 
-                // ½ÓÊÕÊı¾İ (¶¼ÊÇ <0 ³ö´í =0 Á¬½Ó¹Ø±Õ >0 ½ÓÊÕµ½Êı¾İ´óĞ¡)
+                // æ¥æ”¶æ•°æ® (éƒ½æ˜¯ <0 å‡ºé”™ =0 è¿æ¥å…³é—­ >0 æ¥æ”¶åˆ°æ•°æ®å¤§å°)
                 size_t is_rec = recv(clientSocket, buffer, sizeof(buffer), 0);
                 if ((int)is_rec == 0)
                 {
@@ -77,19 +77,19 @@ bool Socket::tcpClientSync(std::string ip, int port)
                 }
                 else
                 {
-                    // Êä³ö½ÓÊÕµ½µÄÊı¾İ
+                    // è¾“å‡ºæ¥æ”¶åˆ°çš„æ•°æ®
                     std::cout << "Received data from server: " << buffer << std::endl;
-                    // µÈ´ı100ºÁÃëºóÖØĞÂÁ¬½Ó
+                    // ç­‰å¾…100æ¯«ç§’åé‡æ–°è¿æ¥
                 }
-                std::this_thread::sleep_for(std::chrono::milliseconds(RE_READ_TIME));  // µÈ´ı1ÃëºóÖØĞÂÁ¬½Ó
+                std::this_thread::sleep_for(std::chrono::milliseconds(RE_READ_TIME));  // ç­‰å¾…1ç§’åé‡æ–°è¿æ¥
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(RE_READ_TIME));  // µÈ´ı1ÃëºóÖØĞÂÁ¬½Ó
-            // Ìø³öÑ­»·¹Ø±Õsocket È»ºó´ÓĞÂ½¨Á¢socket´ÓĞÂÁ¬½Ó
+            std::this_thread::sleep_for(std::chrono::milliseconds(RE_READ_TIME));  // ç­‰å¾…1ç§’åé‡æ–°è¿æ¥
+            // è·³å‡ºå¾ªç¯å…³é—­socket ç„¶åä»æ–°å»ºç«‹socketä»æ–°è¿æ¥
             break;
         }
 
         closesocket(clientSocket);
-        std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECT_TIME));  // µÈ´ı1ÃëºóÖØĞÂÁ¬½Ó
+        std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECT_TIME));  // ç­‰å¾…1ç§’åé‡æ–°è¿æ¥
     }
 
     WSACleanup();
@@ -117,7 +117,7 @@ void Socket::DataReceiver(SOCKET clientSocket)
         else
         {
             std::cout << "Received data from server: " << buffer << std::endl;
-            // ´¦Àí½ÓÊÕµ½µÄÊı¾İ
+            // å¤„ç†æ¥æ”¶åˆ°çš„æ•°æ®
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(RE_READ_TIME));
     }
@@ -136,7 +136,7 @@ bool Socket::tcpClientAsyn(std::string ip, int port)
     }
     while (true)
     {
-        // ´´½¨Ì×½Ó×Ö
+        // åˆ›å»ºå¥—æ¥å­—
         SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, 0);
         if (clientSocket == INVALID_SOCKET)
         {
@@ -145,7 +145,7 @@ bool Socket::tcpClientAsyn(std::string ip, int port)
             return false;
         }
 
-        // ÉèÖÃ·şÎñÆ÷ĞÅÏ¢
+        // è®¾ç½®æœåŠ¡å™¨ä¿¡æ¯
         sockaddr_in serverAddress;
         serverAddress.sin_family = AF_INET;
         serverAddress.sin_port = htons(port);
@@ -160,12 +160,12 @@ bool Socket::tcpClientAsyn(std::string ip, int port)
         is_Running = true;
         while (is_Running)
         {
-            // Á¬½Óµ½·şÎñÆ÷
+            // è¿æ¥åˆ°æœåŠ¡å™¨
             int is_con = connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
             if (is_con == SOCKET_ERROR)
             {
                 std::cout << "Connection failed" << std::endl;
-                std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECT_TIME));  // µÈ´ı1ÃëºóÖØĞÂÁ¬½Ó
+                std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECT_TIME));  // ç­‰å¾…1ç§’åé‡æ–°è¿æ¥
                 break;
             }
             else
@@ -178,13 +178,13 @@ bool Socket::tcpClientAsyn(std::string ip, int port)
                 while (is_Running)
                 {
                     std::cout << n++ << std::endl;
-                    std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECT_TIME));  // µÈ´ı1ÃëºóÖØĞÂÁ¬½Ó
+                    std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECT_TIME));  // ç­‰å¾…1ç§’åé‡æ–°è¿æ¥
                 }
             }
         }
 
         closesocket(clientSocket);
-        std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECT_TIME));  // µÈ´ı1ÃëºóÖØĞÂÁ¬½Ó
+        std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECT_TIME));  // ç­‰å¾…1ç§’åé‡æ–°è¿æ¥
     }
 
     WSACleanup();
@@ -196,7 +196,7 @@ bool Socket::udpServer(std::string ip, int port)
     return false;
 }
 
-// Í¬²½
+// åŒæ­¥
 bool Socket::updClientSync(std::string ip, int port)
 {
     // Initialize Winsock
@@ -322,7 +322,7 @@ bool Socket::updClientSync(std::string ip, int port)
 //    return true;
 //}
 
-// Òì²½
+// å¼‚æ­¥
 bool Socket::updClientAsyn(std::string ip, int port)
 {
     return false;

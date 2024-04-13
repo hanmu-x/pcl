@@ -13,7 +13,7 @@ class Socket
 public:
 
 	/// <summary>
-	/// TCP ·şÎñ¶Ë
+	/// TCP æœåŠ¡ç«¯
 	/// </summary>
 	/// <param name="ip"></param>
 	/// <param name="port"></param>
@@ -21,7 +21,7 @@ public:
 	bool tcpServer(std::string ip, int port);
 
 	/// <summary>
-	/// Í¬²½ TCP socket ¿Í»§¶Ë
+	/// åŒæ­¥ TCP socket å®¢æˆ·ç«¯
 	/// </summary>
 	/// <param name="ip"></param>
 	/// <param name="port"></param>
@@ -29,7 +29,7 @@ public:
 	static bool tcpClientSync(std::string ip, int port);
 
 	/// <summary>
-	/// Òì²½ TCP socket ¿Í»§¶Ë
+	/// å¼‚æ­¥ TCP socket å®¢æˆ·ç«¯
 	/// </summary>
 	/// <param name="ip"></param>
 	/// <param name="port"></param>
@@ -38,7 +38,7 @@ public:
 
 
 	/// <summary>
-	/// UDP ·şÎñ¶Ë
+	/// UDP æœåŠ¡ç«¯
 	/// </summary>
 	/// <param name="ip"></param>
 	/// <param name="port"></param>
@@ -46,7 +46,7 @@ public:
     static bool udpServer(std::string ip, int port);
 
 	/// <summary>
-	/// Í¬²½ UDP socket ¿Í»§¶Ë
+	/// åŒæ­¥ UDP socket å®¢æˆ·ç«¯
 	/// </summary>
 	/// <param name="ip"></param>
 	/// <param name="port"></param>
@@ -54,7 +54,7 @@ public:
     static bool updClientSync(std::string ip, int port);
 
 	/// <summary>
-	/// Òì²½ UDP socket ¿Í»§¶Ë
+	/// å¼‚æ­¥ UDP socket å®¢æˆ·ç«¯
 	/// </summary>
 	/// <param name="ip"></param>
 	/// <param name="port"></param>
@@ -74,7 +74,7 @@ private:
 private:
 	
 	bool is_Running = false;
-	std::mutex m_lock;                  // ×ÓÏß³ÌËø
+	std::mutex m_lock;                  // å­çº¿ç¨‹é”
 
 };
 

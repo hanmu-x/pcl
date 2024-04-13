@@ -3,21 +3,46 @@
 #include "pcl_tool/config.hpp"
 #include "socket/socket.h"
 
-
 #include <filesystem>
-
-
 #include<iostream>
+
+#include <pcl/io/pcd_io.h>
+
 
 
 int main()
 {
     std::filesystem::path data_1(DEFAULT_DATA_DIR);
     data_1 += "/tuzi.pcd";
-    std::filesystem::path data_2(DEFAULT_DATA_DIR);
-    data_2 += "/tuzi_copy.pcd";
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_tuzi(new pcl::PointCloud<pcl::PointXYZ>);
+    if (-1 == pcl::io::loadPCDFile(data_1.string().c_str(), *cloud_tuzi))
+    {
+        std::cout << "error input!" << std::endl;
+        return false;
+    }
 
-    tool_class::link(data_1.string(), data_2.string());
+    // 随机生成一个索引
+    int randomIndex = rand() % cloud_tuzi->size();
+    // 获取随机点的坐标
+    pcl::PointXYZ searchPoint = cloud_tuzi->points[randomIndex];
+    // 执行k紧邻搜索
+    std::vector<int> index = PclTool::kdtreeRadiusSearch(cloud_tuzi, searchPoint, 0.1);
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr outcloud(new pcl::PointCloud<pcl::PointXYZ>);
+
+    if (PclTool::copyPcd(cloud_tuzi, outcloud, index))
+    {
+        // 打开pcd
+        PclTool::openPcd(outcloud);
+    }
+
+
+
+
+    //std::filesystem::path data_2(DEFAULT_DATA_DIR);
+    //data_2 += "/tuzi_copy.pcd";
+
+    //PclTool::link(data_1.string(), data_2.string());
 
 	return 0;
 }
@@ -47,8 +72,8 @@ int main()
 //    std::filesystem::path data_2(DEFAULT_DATA_DIR);
 //    data_2 += "/tuzi_copy.pcd";
 //	// //打开一个pcd
-//    //tool_class::openPcd(data_1.string());
-//	//tool_class::copyPcd(data_1.string(), data_2.string());
+//    //PclTool::openPcd(data_1.string());
+//	//PclTool::copyPcd(data_1.string(), data_2.string());
 //
 //    std::string ip = "192.168.0.163"; // 服务器IP地址
 //    int port = 8080; // 服务器端口号
@@ -227,7 +252,7 @@ int main()
 //    std::filesystem::path data_1(DEFAULT_DATA_DIR);
 //    data_1 += "/geo_db/example6.db";
 //
-//    tool_class tc;
+//    PclTool tc;
 //
 //
 //    return 0;
