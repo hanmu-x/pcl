@@ -7,6 +7,7 @@
 #include <pcl/visualization/cloud_viewer.h>  // 可视化点云数据的CloudViewer类
 
 #include <pcl/kdtree/kdtree_flann.h>  //kdtree类定义头文件
+#include <pcl/octree/octree.h>        //八叉树头文件
 
 #include <pcl/console/time.h>  //pcl计算时间
 // pcl::console::TicToc time; time.tic();
@@ -179,6 +180,65 @@ std::vector<int> PclTool::kdtreeRadiusSearch(const pcl::PointCloud<pcl::PointXYZ
         return std::vector<int>();
     }
 }
+
+std::vector<int> PclTool::octreeVoxelSearch(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const pcl::PointXYZ searchPoint, const float resolution)
+{
+    pcl::octree::OctreePointCloudSearch<pcl::PointXYZ> octree(resolution);  // 初始化Octree
+    octree.setInputCloud(cloud);        // 设置输入点云 
+    octree.addPointsFromInputCloud();   // 构建octree
+    std::vector<int> pointIdxVec;       // 存储体素近邻搜索结果向量
+    if (octree.voxelSearch(searchPoint, pointIdxVec))  // 执行搜索
+    {
+        return pointIdxVec;
+    }
+    else
+    {
+        return std::vector<int>();
+    }
+}
+
+
+std::vector<int> PclTool::octreeKSearch(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const float resolution, const pcl::PointXYZ searchPoint, const unsigned int k)
+{
+    pcl::octree::OctreePointCloudSearch<pcl::PointXYZ> octree(resolution);  // 初始化Octree
+    octree.setInputCloud(cloud);          // 设置输入点云
+    octree.addPointsFromInputCloud();     // 构建octree
+
+
+    std::vector<int> pointIdxNKNSearch;          // 结果点的索引的向量
+    std::vector<float> pointNKNSquaredDistance;  // 搜索点与近邻之间的距离的平方
+
+    if (octree.nearestKSearch(searchPoint, k, pointIdxNKNSearch, pointNKNSquaredDistance) > 0)
+    {
+        return pointIdxNKNSearch;
+    }
+    else
+    {
+        return std::vector<int>();
+    }
+
+}
+
+
+std::vector<int> PclTool::octreeRadiusSearch(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const float resolution, const pcl::PointXYZ searchPoint, const float radius)
+{
+    pcl::octree::OctreePointCloudSearch<pcl::PointXYZ> octree(resolution);  // 初始化Octree
+    octree.setInputCloud(cloud);         // 设置输入点云
+    octree.addPointsFromInputCloud();    // 构建octree
+
+    std::vector<int> pointIdxRadiusSearch;
+    std::vector<float> pointRadiusSquaredDistance;
+
+    if (octree.radiusSearch(searchPoint, radius, pointIdxRadiusSearch, pointRadiusSquaredDistance) > 0)
+    {
+        return pointIdxRadiusSearch;
+    }
+    else
+    {
+        return std::vector<int>();
+    }
+}
+
 
 PclTool::PclTool()
 {

@@ -26,7 +26,7 @@ int main()
     // 获取随机点的坐标
     pcl::PointXYZ searchPoint = cloud_tuzi->points[randomIndex];
     // 执行k紧邻搜索
-    std::vector<int> index = PclTool::kdtreeRadiusSearch(cloud_tuzi, searchPoint, 0.1);
+    std::vector<int> index = PclTool::octreeRadiusSearch(cloud_tuzi, 10, searchPoint, 0.12);
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr outcloud(new pcl::PointCloud<pcl::PointXYZ>);
 
