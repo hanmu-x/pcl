@@ -2,9 +2,8 @@ cmake_minimum_required (VERSION 3.15)
 
 project(pro_main CXX)
 
-add_subdirectory(tool_dir_name)
-link_libraries(tool_lib_name)
-
+add_subdirectory(pcl_tool)
+link_libraries(pcl_tool_lib)
 
 add_subdirectory(socket)
 link_libraries(socket_tool)

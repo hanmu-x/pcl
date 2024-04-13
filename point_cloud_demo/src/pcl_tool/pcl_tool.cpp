@@ -1,5 +1,5 @@
 
-#include "project.h"
+#include "pcl_tool.h"
 
 //#include<pcl/io/io.h>
 #include<pcl/io/pcd_io.h>
@@ -7,9 +7,9 @@
 #include<pcl/point_types.h>
 #include<pcl/visualization/cloud_viewer.h>
 
-#include <pcl/console/time.h>  //pcl¼ÆËãÊ±¼ä
+#include <pcl/console/time.h>  //pclè®¡ç®—æ—¶é—´
 //pcl::console::TicToc time; time.tic();
-//+³ÌĞò¶Î +
+//+ç¨‹åºæ®µ +
 //cout << time.toc() / 1000 << "s" << endl;
 
 //using namespace pcl;
@@ -18,7 +18,7 @@
 
 void viewerOneOff(pcl::visualization::PCLVisualizer& viewer)
 {
-	viewer.setBackgroundColor(0, 0, 0); //ÉèÖÃ±³¾°ÑÕÉ«ÎªºÚÉ«
+	viewer.setBackgroundColor(0, 0, 0); //è®¾ç½®èƒŒæ™¯é¢œè‰²ä¸ºé»‘è‰²
 }
 
 bool tool_class::openPcd(std::string pcdFile)
@@ -68,33 +68,33 @@ bool tool_class::copyPcd(std::string fromPcd, std::string toPcd)
 
 bool tool_class::link(std::string fpcd, std::string spcd)
 {
-    // ¶ÁÈ¡µãÔÆ
+    // è¯»å–ç‚¹äº‘
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::io::loadPCDFile(fpcd.c_str(), *cloud1);
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::io::loadPCDFile(spcd.c_str(), *cloud2);
 
-		// ¶¨Òå¶ÔÏó
+		// å®šä¹‰å¯¹è±¡
     pcl::visualization::PCLVisualizer viewer;
-    // ÉèÖÃ±³¾°ÑÕÉ«£¬Ä¬ÈÏºÚÉ«
+    // è®¾ç½®èƒŒæ™¯é¢œè‰²ï¼Œé»˜è®¤é»‘è‰²
     viewer.setBackgroundColor(100, 100, 100);  // rgb
 
-		// --- ÏÔÊ¾µãÔÆÊı¾İ ----
-    // "cloud1" ÎªÏÔÊ¾id£¬Ä¬ÈÏcloud,ÏÔÊ¾¶à¸öµãÔÆÊ±ÓÃÄ¬ÈÏ»á±¨¾¯¸æ¡£
+		// --- æ˜¾ç¤ºç‚¹äº‘æ•°æ® ----
+    // "cloud1" ä¸ºæ˜¾ç¤ºidï¼Œé»˜è®¤cloud,æ˜¾ç¤ºå¤šä¸ªç‚¹äº‘æ—¶ç”¨é»˜è®¤ä¼šæŠ¥è­¦å‘Šã€‚
     viewer.addPointCloud(cloud1, "cloud1");
 
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red(cloud2, 255, 0, 0);  // rgb
-    // ½«µãÔÆÉèÖÃÑÕÉ«£¬Ä¬ÈÏ°×É«
+    // å°†ç‚¹äº‘è®¾ç½®é¢œè‰²ï¼Œé»˜è®¤ç™½è‰²
     viewer.addPointCloud(cloud2, red, "cloud2");
 
-    // ½«Á½¸öµãÁ¬Ïß
+    // å°†ä¸¤ä¸ªç‚¹è¿çº¿
     pcl::PointXYZ temp1 = cloud1->points[0];
     pcl::PointXYZ temp2 = cloud1->points[10];
 
     viewer.addLine(temp1, temp2, "line0"); 
 
-	// --- ÏÔÊ¾Íø¸ñÊı¾İ ---
+	// --- æ˜¾ç¤ºç½‘æ ¼æ•°æ® ---
     //pcl::PolygonMesh mesh;
     //pcl::io::loadPLYFile("read.ply", mesh);
     //viewer.addPolygonMesh(mesh);
