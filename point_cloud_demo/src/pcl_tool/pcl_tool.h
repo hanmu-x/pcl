@@ -133,6 +133,15 @@ class PclTool
 
     ////////////// filters 滤波 ///////////////
 
+    /// <summary>
+    /// 直通滤波
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <param name="field_name"></param>
+    /// <param name="Limit_low"></param>
+    /// <param name="Limit_hig"></param>
+    /// <param name="is_save"></param>
+    /// <returns></returns>
     static pcl::PointCloud<pcl::PointXYZ>::Ptr passThroughFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::string field_name, float Limit_low, float Limit_hig, bool is_save = true);
 
 
