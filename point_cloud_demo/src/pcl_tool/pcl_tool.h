@@ -9,19 +9,35 @@
 class PclTool
 {
   public:
+
     /// <summary>
-    /// 打开点云文件,可视化展示
+    /// 打开点云数据文件(pcd,ply)文件
+    /// </summary>
+    /// <param name="file"></param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::PointXYZ>::Ptr openPointCloudFile(const std::string& filename);
+
+    /// <summary>
+    /// 保存点云到指定的文件中
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <param name="filename"></param>
+    /// <returns></returns>
+    static bool savePointCloudFile(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, const std::string& filename);
+
+    /// <summary>
+    /// 打开点pcd云文件,可视化展示
     /// </summary>
     /// <param name="pcdFile"></param>
     /// <returns></returns>
     static bool openPcd(std::string pcdFile);
 
     /// <summary>
-    /// 通过点云指针打开,可视化展示
+    /// 通过pcd点云指针打开,可视化展示
     /// </summary>
     /// <param name="cloud"></param>
     /// <returns></returns>
-    static bool openPcd(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+    static bool viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
     /// <summary>
     /// 赋值一个点云文件到另一个点云文件中
@@ -97,6 +113,28 @@ class PclTool
     /// <param name="radius">索引半径</param>
     /// <returns>返回索引出点的编号数组</returns>
     static std::vector<int> octreeRadiusSearch(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const float resolution, const pcl::PointXYZ searchPoint, const float radius);
+
+    /// <summary>
+    /// 检测从beforCloud点云到afterCloud点云增加的点集
+    /// </summary>
+    /// <param name="beforCloud"></param>
+    /// <param name="afterCloud"></param>
+    /// <returns></returns>
+    static std::vector<int> octreeChangeDetection(const pcl::PointCloud<pcl::PointXYZ>::Ptr beforCloud, const pcl::PointCloud<pcl::PointXYZ>::Ptr afterCloud, const float resolution);
+
+    ////////////// 随机采样一致性算法 ///////////////
+    
+    static std::vector<int> randomSampleConsensus(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const unsigned int type);
+
+    ////////////// tracking 跟踪 ///////////////
+
+    ////////////// 深度图 ///////////////
+
+
+    ////////////// filters 滤波 ///////////////
+
+    static pcl::PointCloud<pcl::PointXYZ>::Ptr passThroughFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::string field_name, float Limit_low, float Limit_hig, bool is_save = true);
+
 
     PclTool();
     ~PclTool();

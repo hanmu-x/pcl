@@ -1,13 +1,20 @@
 
 #include "pcl_tool.h"
+#include <filesystem>
 
-// #include<pcl/io/io.h>
 #include <pcl/io/pcd_io.h>  // 读取和写入PCD
-// #include<pcl/io/ply_io.h> // 读取和写入PLY
+#include<pcl/io/ply_io.h> // 读取和写入PLY
 #include <pcl/visualization/cloud_viewer.h>  // 可视化点云数据的CloudViewer类
 
 #include <pcl/kdtree/kdtree_flann.h>  //kdtree类定义头文件
 #include <pcl/octree/octree.h>        //八叉树头文件
+
+#include <pcl/sample_consensus/ransac.h>
+#include <pcl/sample_consensus/sac_model_plane.h>
+#include <pcl/sample_consensus/sac_model_sphere.h>
+
+#include <pcl/filters/passthrough.h>  // 直通滤波
+#include<pcl/common/common_headers.h>
 
 #include <pcl/console/time.h>  //pcl计算时间
 // pcl::console::TicToc time; time.tic();
@@ -20,6 +27,53 @@ void viewerOneOff(pcl::visualization::PCLVisualizer& viewer)
 {
     viewer.setBackgroundColor(0, 0, 0);  // 设置背景颜色为黑色
 }
+
+pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::openPointCloudFile(const std::string& filename)
+{
+    std::string fileExtension = std::filesystem::path(filename).extension().string();
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+
+    if (fileExtension == ".pcd" || fileExtension == ".PCD")
+    {
+        if (pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *cloud) == -1)
+        {
+            // 如果无法读取文件，则返回空指针
+            std::cout << "Unable to open PCD file:" << filename << std::endl;
+            return nullptr;
+        }
+    }
+    else if (fileExtension == ".ply" || fileExtension == ".PLY")
+    {
+        if (pcl::io::loadPLYFile<pcl::PointXYZ>(filename, *cloud) == -1)
+        {
+            // 如果无法读取文件，则返回空指针
+            std::cout << "Unable to open PLY file: " << filename << std::endl;
+            return nullptr;
+        }
+    }
+    else
+    {
+        // 不支持的文件格式
+        std::cout << "不支持的文件格式: " << fileExtension << std::endl;
+        return nullptr;
+    }
+    return cloud;
+}
+
+bool PclTool::savePointCloudFile(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, const std::string& filename)
+{
+    if (!cloud || cloud->empty())
+    {
+        std::cout << "ERROR : Invalid point cloud data " << std::endl;
+        return false;
+    }
+
+    pcl::io::savePCDFileASCII(filename, *cloud);
+    std::cout << "成功将点云数据写入到文件: " << filename << std::endl;
+    return true;
+}
+
+
 
 bool PclTool::openPcd(std::string pcdFile)
 {
@@ -44,7 +98,7 @@ bool PclTool::openPcd(std::string pcdFile)
     return true;
 }
 
-bool PclTool::openPcd(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
+bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
 {
     if (cloud == nullptr)
     {
@@ -238,6 +292,80 @@ std::vector<int> PclTool::octreeRadiusSearch(const pcl::PointCloud<pcl::PointXYZ
         return std::vector<int>();
     }
 }
+
+
+std::vector<int> PclTool::octreeChangeDetection(const pcl::PointCloud<pcl::PointXYZ>::Ptr beforCloud, const pcl::PointCloud<pcl::PointXYZ>::Ptr afterCloud, const float resolution)
+{
+    pcl::octree::OctreePointCloudChangeDetector<pcl::PointXYZ> octree(resolution);
+
+    // 添加点云到八叉树中，构建八叉树
+    octree.setInputCloud(beforCloud);  // 设置输入点云
+    octree.addPointsFromInputCloud();  // 从输入点云构建八叉树
+    // 添加点云到八叉树中
+    octree.setInputCloud(afterCloud);
+    octree.addPointsFromInputCloud();
+    std::vector<int> newPointIdxVector;  // 存储新添加的索引的向量
+
+    // 获取前一 beforCloud 对应八叉树在 afterCloud 对应在八叉树中没有的点集
+    octree.getPointIndicesFromNewVoxels(newPointIdxVector);
+    return newPointIdxVector;
+
+}
+
+
+std::vector<int> PclTool::randomSampleConsensus(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const unsigned int type)
+{
+    std::vector<int> inliers;
+    if (type == 1)
+    {  
+        // 平面
+        pcl::SampleConsensusModelPlane<pcl::PointXYZ>::Ptr model_p(new pcl::SampleConsensusModelPlane<pcl::PointXYZ>(cloud));
+        pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(model_p);
+        ransac.setDistanceThreshold(.01);
+        ransac.computeModel();
+        ransac.getInliers(inliers);
+    }
+    else if (type == 2)
+    {  
+        // 球体
+        pcl::SampleConsensusModelSphere<pcl::PointXYZ>::Ptr model_s(new pcl::SampleConsensusModelSphere<pcl::PointXYZ>(cloud));
+        pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(model_s);
+        ransac.setDistanceThreshold(.01);
+        ransac.computeModel();
+        ransac.getInliers(inliers);
+    }
+    else
+    {
+        std::cout << "type error: 1 or 2 " << std::endl;
+    }
+
+    return inliers;
+}
+
+
+
+
+
+pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::passThroughFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::string field_name, float Limit_low, float Limit_hig, bool is_save)
+{
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
+
+    // 设置滤波器对象
+    pcl::PassThrough<pcl::PointXYZ> pass;
+    pass.setInputCloud(cloud);       // 设置输入点云
+    pass.setFilterFieldName(field_name);  // 设置过滤时所需要点云类型的Z字段
+    pass.setFilterLimits(Limit_low, Limit_hig);  // 设置在过滤字段的范围
+    //if (is_save)
+    //{
+    //    // is_save:true: 保留(Limit_low~Limit_hig)范围内的点
+    //    // is_save:false: 删除(Limit_low~Limit_hig)范围内的点
+    //    pass.getFilterLimitsNegative();  // 设置保留范围内还是过滤掉范围内
+    //}
+    pass.filter(*cloud_filtered);  // 执行滤波，保存过滤结果在cloud_filtered
+
+    return cloud_filtered;
+}
+
 
 
 PclTool::PclTool()

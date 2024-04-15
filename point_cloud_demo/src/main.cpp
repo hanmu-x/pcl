@@ -14,27 +14,48 @@ int main()
 {
     std::filesystem::path data_1(DEFAULT_DATA_DIR);
     data_1 += "/tuzi.pcd";
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_tuzi(new pcl::PointCloud<pcl::PointXYZ>);
-    if (-1 == pcl::io::loadPCDFile(data_1.string().c_str(), *cloud_tuzi))
-    {
-        std::cout << "error input!" << std::endl;
-        return false;
-    }
 
-    // 随机生成一个索引
-    int randomIndex = rand() % cloud_tuzi->size();
-    // 获取随机点的坐标
-    pcl::PointXYZ searchPoint = cloud_tuzi->points[randomIndex];
-    // 执行k紧邻搜索
-    std::vector<int> index = PclTool::octreeRadiusSearch(cloud_tuzi, 10, searchPoint, 0.12);
+    std::filesystem::path data_2(DEFAULT_DATA_DIR);
+    data_2 += "/consensus.pcd";
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr tuzi = PclTool::openPointCloudFile(data_1.string());
+    pcl::PointCloud<pcl::PointXYZ>::Ptr passthfilter = PclTool::passThroughFilter(tuzi, "x", -0.05, 0.02,  false);
+
+    PclTool::viewerPcl(passthfilter);
+    return 0;
+
+
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr concloud = PclTool::openPointCloudFile(data_2.string());
+
+    std::vector<int> index2 = PclTool::randomSampleConsensus(concloud, 2);
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr outcloud(new pcl::PointCloud<pcl::PointXYZ>);
 
-    if (PclTool::copyPcd(cloud_tuzi, outcloud, index))
+    if (PclTool::copyPcd(concloud, outcloud, index2))
     {
         // 打开pcd
-        PclTool::openPcd(outcloud);
+        PclTool::viewerPcl(outcloud);
     }
+
+    return 0;
+
+
+
+    // 随机生成一个索引
+    int randomIndex = rand() % tuzi->size();
+    // 获取随机点的坐标
+    pcl::PointXYZ searchPoint = tuzi->points[randomIndex];
+    // 执行k紧邻搜索
+    std::vector<int> index = PclTool::octreeRadiusSearch(tuzi, 10, searchPoint, 0.12);
+
+    //pcl::PointCloud<pcl::PointXYZ>::Ptr outcloud(new pcl::PointCloud<pcl::PointXYZ>);
+
+    //if (PclTool::copyPcd(cloud_tuzi, outcloud, index))
+    //{
+    //    // 打开pcd
+    //    PclTool::viewerPcl(outcloud);
+    //}
 
 
 
