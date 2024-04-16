@@ -5,6 +5,8 @@
 
 #include <pcl/point_cloud.h>   // 点云类型
 #include <pcl/point_types.h>    //点数据类型
+#include <pcl/PCLPointCloud2.h>
+
 
 class PclTool
 {
@@ -16,6 +18,14 @@ class PclTool
     /// <param name="file"></param>
     /// <returns></returns>
     static pcl::PointCloud<pcl::PointXYZ>::Ptr openPointCloudFile(const std::string& filename);
+
+    /// <summary>
+    /// 打开点云文件保存到pcl::PCLPointCloud2::Ptr
+    /// </summary>
+    /// <param name="filename"></param>
+    /// <returns></returns>
+    static pcl::PCLPointCloud2::Ptr openPointCloudFile2(const std::string& filename);
+
 
     /// <summary>
     /// 保存点云到指定的文件中
@@ -38,6 +48,14 @@ class PclTool
     /// <param name="cloud"></param>
     /// <returns></returns>
     static bool viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+
+    /// <summary>
+    /// pcl::PCLPointCloud2::Ptr点云,可视化展示
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <returns></returns>
+    static bool PclTool::viewerPcl(pcl::PCLPointCloud2::Ptr cloud);
+
 
     /// <summary>
     /// 赋值一个点云文件到另一个点云文件中
@@ -143,6 +161,17 @@ class PclTool
     /// <param name="is_save"></param>
     /// <returns></returns>
     static pcl::PointCloud<pcl::PointXYZ>::Ptr passThroughFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::string field_name, float Limit_low, float Limit_hig, bool is_save = true);
+
+    /// <summary>
+    /// VoxelGrid滤波下采样
+    /// </summary>
+    /// <param name="cloud">需要滤波的点云</param>
+    /// <param name="lx">三维体素栅格的x</param>
+    /// <param name="ly">三维体素栅格的y</param>
+    /// <param name="lz">三维体素栅格的z</param>
+    /// <returns></returns>
+    static pcl::PCLPointCloud2::Ptr voxelGridFilter(pcl::PCLPointCloud2::Ptr cloud, float lx, float ly, float lz);
+
 
 
     PclTool();

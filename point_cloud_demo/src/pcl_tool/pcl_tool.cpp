@@ -16,6 +16,8 @@
 #include <pcl/filters/passthrough.h>  // 直通滤波
 #include<pcl/common/common_headers.h>
 
+#include <pcl/filters/voxel_grid.h> // VoxelGrid滤波下采样
+
 #include <pcl/console/time.h>  //pcl计算时间
 // pcl::console::TicToc time; time.tic();
 //+程序段 +
@@ -59,6 +61,39 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::openPointCloudFile(const std::strin
     }
     return cloud;
 }
+
+pcl::PCLPointCloud2::Ptr PclTool::openPointCloudFile2(const std::string& filename)
+{
+    std::string fileExtension = std::filesystem::path(filename).extension().string();
+    pcl::PCLPointCloud2::Ptr cloud(new pcl::PCLPointCloud2);
+
+    if (fileExtension == ".pcd" || fileExtension == ".PCD")
+    {
+        if (pcl::io::loadPCDFile(filename, *cloud) == -1)
+        {
+            // 如果无法读取文件，则返回空指针
+            std::cout << "Unable to open PCD file:" << filename << std::endl;
+            return nullptr;
+        }
+    }
+    else if (fileExtension == ".ply" || fileExtension == ".PLY")
+    {
+        if (pcl::io::loadPLYFile(filename, *cloud) == -1)
+        {
+            // 如果无法读取文件，则返回空指针
+            std::cout << "Unable to open PLY file: " << filename << std::endl;
+            return nullptr;
+        }
+    }
+    else
+    {
+        // 不支持的文件格式
+        std::cout << "不支持的文件格式: " << fileExtension << std::endl;
+        return nullptr;
+    }
+    return cloud;
+}
+
 
 bool PclTool::savePointCloudFile(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, const std::string& filename)
 {
@@ -113,6 +148,26 @@ bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
     viewer.showCloud(cloud);
     viewer.runOnVisualizationThreadOnce(viewerOneOff);
 
+    cout << time.toc() / 1000 << "s" << endl;
+    system("pause");
+    return true;
+}
+
+bool PclTool::viewerPcl(pcl::PCLPointCloud2::Ptr cloud)
+{
+    if (cloud == nullptr)
+    {
+        std::cout << "The point cloud data is empty" << std::endl;
+        return false;
+    }
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::fromPCLPointCloud2(*cloud, *cloud_xyz);  // 将PCLPointCloud2转换为PointXYZ类型的点云
+    pcl::console::TicToc time;
+    time.tic();
+    std::cout << cloud_xyz->points.size() << std::endl;
+    pcl::visualization::CloudViewer viewer("Cloud Viewer: Rabbit");
+    viewer.showCloud(cloud_xyz);
+    viewer.runOnVisualizationThreadOnce(viewerOneOff);
     cout << time.toc() / 1000 << "s" << endl;
     system("pause");
     return true;
@@ -344,8 +399,6 @@ std::vector<int> PclTool::randomSampleConsensus(const pcl::PointCloud<pcl::Point
 
 
 
-
-
 pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::passThroughFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::string field_name, float Limit_low, float Limit_hig, bool is_save)
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
@@ -364,6 +417,20 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::passThroughFilter(pcl::PointCloud<p
     pass.filter(*cloud_filtered);  // 执行滤波，保存过滤结果在cloud_filtered
 
     return cloud_filtered;
+}
+
+
+pcl::PCLPointCloud2::Ptr PclTool::voxelGridFilter(pcl::PCLPointCloud2::Ptr cloud, float lx, float ly, float lz)
+{
+    pcl::PCLPointCloud2::Ptr cloud_filtered(new pcl::PCLPointCloud2());
+
+    pcl::VoxelGrid<pcl::PCLPointCloud2> sor;  // 创建滤波对象
+    sor.setInputCloud(cloud);                 // 设置需要过滤的点云给滤波对象
+    sor.setLeafSize(lx, ly, lz);              // 设置滤波时创建的体素体积 单位：m
+    sor.filter(*cloud_filtered);              // 执行滤波处理，存储输出
+
+    return cloud_filtered;
+
 }
 
 
