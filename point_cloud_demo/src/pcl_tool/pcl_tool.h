@@ -172,6 +172,16 @@ class PclTool
     /// <returns></returns>
     static pcl::PCLPointCloud2::Ptr voxelGridFilter(pcl::PCLPointCloud2::Ptr cloud, float lx, float ly, float lz);
 
+    /// <summary>
+    /// 使用statisticalOutlierRemoval滤波器移除离群点
+    /// </summary>
+    /// <param name="cloud">被过滤的点云</param>
+    /// <param name="meank"></param>
+    /// <param name="threshold"></param>
+    /// <param name="Inversion">是否对结果取反,false:删除离群点,true:保留离群点</param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::PointXYZ>::Ptr statisticalOutlierRemovalFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int meank, double threshold, bool Inversion = false);
+
 
 
     PclTool();

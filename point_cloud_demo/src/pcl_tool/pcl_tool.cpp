@@ -18,6 +18,9 @@
 
 #include <pcl/filters/voxel_grid.h> // VoxelGrid滤波下采样
 
+#include <pcl/filters/statistical_outlier_removal.h> // statisticalOutlierRemoval滤波器移除离群点
+
+
 #include <pcl/console/time.h>  //pcl计算时间
 // pcl::console::TicToc time; time.tic();
 //+程序段 +
@@ -432,6 +435,24 @@ pcl::PCLPointCloud2::Ptr PclTool::voxelGridFilter(pcl::PCLPointCloud2::Ptr cloud
     return cloud_filtered;
 
 }
+
+
+pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::statisticalOutlierRemovalFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int meank, double threshold, bool inversion)
+{
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;  // 创建滤波器对象
+
+    sor.setInputCloud(cloud);     // 设置待滤波的点云
+    sor.setMeanK(meank);          // 设置在进行统计时考虑查询点临近点数
+    sor.setStddevMulThresh(1.0);  // 设置判断是否为离群点的阀值
+    sor.setNegative(inversion);
+    sor.filter(*cloud_filtered);  // 存储
+
+    return cloud_filtered;
+}
+
+
+
 
 
 

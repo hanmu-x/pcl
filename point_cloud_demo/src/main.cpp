@@ -21,11 +21,23 @@ int main()
     std::filesystem::path data_3(DEFAULT_DATA_DIR);
     data_3 += "/table_scene_lms400.pcd";
 
-    pcl::PCLPointCloud2::Ptr cloud2_zhuozi = PclTool::openPointCloudFile2(data_3.string());
+    pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclTool::openPointCloudFile(data_3.string());
 
-    pcl::PCLPointCloud2::Ptr cloud2_zhuozi_fl = PclTool::voxelGridFilter(cloud2_zhuozi, 0.1, 0.1, 0.1);
 
-    PclTool::viewerPcl(cloud2_zhuozi_fl);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr scrfilter_table = PclTool::statisticalOutlierRemovalFilter(table_cloud, 50, 1.0, true);
+
+    PclTool::viewerPcl(scrfilter_table);
+
+    return 0;
+
+    pcl::PCLPointCloud2::Ptr cloud2_table_cloud2 = PclTool::openPointCloudFile2(data_3.string());
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr concloud = PclTool::openPointCloudFile(data_2.string());
+
+
+    pcl::PCLPointCloud2::Ptr cloud2_table_fl = PclTool::voxelGridFilter(cloud2_table_cloud2, 0.1, 0.1, 0.1);
+
+    PclTool::viewerPcl(cloud2_table_fl);
     return 0;
 
 
@@ -37,7 +49,6 @@ int main()
 
 
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr concloud = PclTool::openPointCloudFile(data_2.string());
 
     std::vector<int> index2 = PclTool::randomSampleConsensus(concloud, 2);
 
