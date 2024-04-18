@@ -24,6 +24,17 @@ int main()
     pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclTool::openPointCloudFile(data_3.string());
 
 
+    //pcl::PointCloud<pcl::PointXYZ>::Ptr Projection_xy = PclTool::cloudProjection(table_cloud, 0.0, 0.0, 1.0, 0.0);
+
+    //PclTool::viewerPcl(Projection_xy);
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr Projection_yz = PclTool::cloudProjection(table_cloud, 1.0, 0.0, 0.0, 0.0);
+
+    PclTool::viewerPcl(Projection_yz);
+
+    return 0;
+
+
     pcl::PointCloud<pcl::PointXYZ>::Ptr scrfilter_table = PclTool::statisticalOutlierRemovalFilter(table_cloud, 50, 1.0, true);
 
     PclTool::viewerPcl(scrfilter_table);

@@ -20,6 +20,8 @@
 
 #include <pcl/filters/statistical_outlier_removal.h> // statisticalOutlierRemoval滤波器移除离群点
 
+#include <pcl/ModelCoefficients.h>             //模型系数头文件
+#include <pcl/filters/project_inliers.h>       //投影滤波类头文件
 
 #include <pcl/console/time.h>  //pcl计算时间
 // pcl::console::TicToc time; time.tic();
@@ -452,7 +454,29 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::statisticalOutlierRemovalFilter(pcl
 }
 
 
+pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::cloudProjection(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float x, float y, float z, float c)
+{
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_projected(new pcl::PointCloud<pcl::PointXYZ>);
 
+      // 填充 ModelCoefficients 的值,使用ax+by+cz+d=0平面模型，其中 a=b=d=0,c=1 也就是X——Y平面
+    // 定义模型系数对象，并填充对应的数据
+    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
+    coefficients->values.resize(4);
+    coefficients->values[0] = x;
+    coefficients->values[1] = y;
+    coefficients->values[2] = z;
+    coefficients->values[3] = c;
+
+      // 创建 ProjectInliers 对象，使用ModelCoefficients作为投影对象的模型参数
+    pcl::ProjectInliers<pcl::PointXYZ> proj;  // 创建投影滤波对象
+    proj.setModelType(pcl::SACMODEL_PLANE);   // 设置对象对应的投影模型
+    proj.setInputCloud(cloud);                // 设置输入点云
+    proj.setModelCoefficients(coefficients);  // 设置模型对应的系数
+    proj.filter(*cloud_projected);            // 投影结果存储cloud_projected
+
+    return cloud_projected;
+
+}
 
 
 

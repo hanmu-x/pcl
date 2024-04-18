@@ -182,6 +182,17 @@ class PclTool
     /// <returns></returns>
     static pcl::PointCloud<pcl::PointXYZ>::Ptr statisticalOutlierRemovalFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int meank, double threshold, bool Inversion = false);
 
+    /// <summary>
+    /// 参数化模型投影点云
+    /// </summary>
+    /// <param name="cloud">点云</param>
+    /// <param name="x">投影平面x面的系数</param>
+    /// <param name="y"></param>
+    /// <param name="z"></param>
+    /// <param name="c"></param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::PointXYZ>::Ptr cloudProjection(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float x, float y, float z, float c);
+
 
 
     PclTool();
