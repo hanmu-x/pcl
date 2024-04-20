@@ -13,6 +13,23 @@ class PclTool
   public:
 
     /// <summary>
+    /// 通过pcd点云指针打开,可视化展示
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <returns></returns>
+    static bool viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+
+    /// <summary>
+    /// pcl::PCLPointCloud2::Ptr点云,可视化展示
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <returns></returns>
+    static bool viewerPcl(pcl::PCLPointCloud2::Ptr cloud);
+
+    static bool viewerPcl(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud);
+
+
+    /// <summary>
     /// 打开点云数据文件(pcd,ply)文件
     /// </summary>
     /// <param name="file"></param>
@@ -42,19 +59,6 @@ class PclTool
     /// <returns></returns>
     static bool openPcd(std::string pcdFile);
 
-    /// <summary>
-    /// 通过pcd点云指针打开,可视化展示
-    /// </summary>
-    /// <param name="cloud"></param>
-    /// <returns></returns>
-    static bool viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
-
-    /// <summary>
-    /// pcl::PCLPointCloud2::Ptr点云,可视化展示
-    /// </summary>
-    /// <param name="cloud"></param>
-    /// <returns></returns>
-    static bool PclTool::viewerPcl(pcl::PCLPointCloud2::Ptr cloud);
 
 
     /// <summary>
@@ -217,7 +221,7 @@ class PclTool
     /// <returns></returns>
     static pcl::PointCloud<pcl::PointXYZ>::Ptr conditionRemoval(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::vector<pcl::FieldComparison<pcl::PointXYZ>::ConstPtr> comparisons);
 
-
+    static pcl::PointCloud<pcl::PointXYZI>::Ptr bilateralFilter(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud);
 
 
     PclTool();

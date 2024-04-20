@@ -27,6 +27,8 @@
 #include <pcl/segmentation/sac_segmentation.h>
 
 #include <pcl/filters/radius_outlier_removal.h> // RadiusOutlinerRemoval 移除离群点
+#include <pcl/filters/impl/bilateral.hpp>  // 双边滤波
+
 
 // #include <pcl/filters/conditional_removal.h> // ConditionalRemoval 移除离群点
 
@@ -41,6 +43,68 @@
 void viewerOneOff(pcl::visualization::PCLVisualizer& viewer)
 {
     viewer.setBackgroundColor(0, 0, 0);  // 设置背景颜色为黑色
+}
+
+bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
+{
+    if (cloud == nullptr)
+    {
+        std::cout << "The point cloud data is empty" << std::endl;
+        return false;
+    }
+    pcl::console::TicToc time;
+    time.tic();
+    std::cout << cloud->points.size() << std::endl;
+    pcl::visualization::CloudViewer viewer("Cloud Viewer: Rabbit");
+
+    viewer.showCloud(cloud);
+    viewer.runOnVisualizationThreadOnce(viewerOneOff);
+
+    cout << time.toc() / 1000 << "s" << endl;
+    system("pause");
+    std::cout << "End show " << std::endl;
+    return true;
+}
+
+bool PclTool::viewerPcl(pcl::PCLPointCloud2::Ptr cloud)
+{
+    if (cloud == nullptr)
+    {
+        std::cout << "The point cloud data is empty" << std::endl;
+        return false;
+    }
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::fromPCLPointCloud2(*cloud, *cloud_xyz);  // 将PCLPointCloud2转换为PointXYZ类型的点云
+    pcl::console::TicToc time;
+    time.tic();
+    std::cout << cloud_xyz->points.size() << std::endl;
+    pcl::visualization::CloudViewer viewer("Cloud Viewer: Rabbit");
+    viewer.showCloud(cloud_xyz);
+    viewer.runOnVisualizationThreadOnce(viewerOneOff);
+    cout << time.toc() / 1000 << "s" << endl;
+    system("pause");
+    return true;
+}
+
+bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud)
+{
+    if (cloud == nullptr)
+    {
+        std::cout << "The point cloud data is empty" << std::endl;
+        return false;
+    }
+    pcl::console::TicToc time;
+    time.tic();
+    std::cout << cloud->points.size() << std::endl;
+    pcl::visualization::CloudViewer viewer("Cloud Viewer: Rabbit");
+
+    viewer.showCloud(cloud);
+    viewer.runOnVisualizationThreadOnce(viewerOneOff);
+
+    cout << time.toc() / 1000 << "s" << endl;
+    system("pause");
+    std::cout << "End show " << std::endl;
+    return true;
 }
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::openPointCloudFile(const std::string& filename)
@@ -147,46 +211,7 @@ bool PclTool::openPcd(std::string pcdFile)
     return true;
 }
 
-bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
-{
-    if (cloud == nullptr)
-    {
-        std::cout << "The point cloud data is empty" << std::endl;
-        return false;
-    }
-    pcl::console::TicToc time;
-    time.tic();
-    std::cout << cloud->points.size() << std::endl;
-    pcl::visualization::CloudViewer viewer("Cloud Viewer: Rabbit");
 
-    viewer.showCloud(cloud);
-    viewer.runOnVisualizationThreadOnce(viewerOneOff);
-
-    cout << time.toc() / 1000 << "s" << endl;
-    system("pause");
-    std::cout << "End show " << std::endl;
-    return true;
-}
-
-bool PclTool::viewerPcl(pcl::PCLPointCloud2::Ptr cloud)
-{
-    if (cloud == nullptr)
-    {
-        std::cout << "The point cloud data is empty" << std::endl;
-        return false;
-    }
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::fromPCLPointCloud2(*cloud, *cloud_xyz);  // 将PCLPointCloud2转换为PointXYZ类型的点云
-    pcl::console::TicToc time;
-    time.tic();
-    std::cout << cloud_xyz->points.size() << std::endl;
-    pcl::visualization::CloudViewer viewer("Cloud Viewer: Rabbit");
-    viewer.showCloud(cloud_xyz);
-    viewer.runOnVisualizationThreadOnce(viewerOneOff);
-    cout << time.toc() / 1000 << "s" << endl;
-    system("pause");
-    return true;
-}
 
 bool PclTool::copyPcd(std::string fromPcd, std::string toPcd)
 {
@@ -610,6 +635,24 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::conditionRemoval(pcl::PointCloud<pc
 
     return cloud_filtered;
 }
+
+
+pcl::PointCloud<pcl::PointXYZI>::Ptr PclTool::bilateralFilter(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud)
+{
+    pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZI>);
+
+    pcl::search::KdTree<pcl::PointXYZI>::Ptr tree1(new pcl::search::KdTree<pcl::PointXYZI>);
+    // Apply the filter
+    pcl::BilateralFilter<pcl::PointXYZI> fbf;
+    fbf.setInputCloud(cloud);
+    fbf.setSearchMethod(tree1);
+    fbf.setStdDev(0.1);
+    fbf.setHalfSize(0.1);
+    fbf.filter(*cloud_filtered);
+
+    return cloud_filtered;
+}
+
 
 
 PclTool::PclTool()
