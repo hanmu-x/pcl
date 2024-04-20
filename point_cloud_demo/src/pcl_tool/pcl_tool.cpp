@@ -23,6 +23,10 @@
 #include <pcl/ModelCoefficients.h>             //模型系数头文件
 #include <pcl/filters/project_inliers.h>       //投影滤波类头文件
 
+#include <pcl/filters/extract_indices.h>       // 从一个点云中提取索引 
+#include <pcl/segmentation/sac_segmentation.h>
+
+
 #include <pcl/console/time.h>  //pcl计算时间
 // pcl::console::TicToc time; time.tic();
 //+程序段 +
@@ -135,6 +139,7 @@ bool PclTool::openPcd(std::string pcdFile)
 
     cout << time.toc() / 1000 << "s" << endl;
     system("pause");
+    std::cout << "End show " << std::endl;
     return true;
 }
 
@@ -155,6 +160,7 @@ bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
 
     cout << time.toc() / 1000 << "s" << endl;
     system("pause");
+    std::cout << "End show " << std::endl;
     return true;
 }
 
@@ -478,6 +484,65 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::cloudProjection(pcl::PointCloud<pcl
 
 }
 
+
+std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> PclTool::cloudExtraction(pcl::PCLPointCloud2::Ptr cloud)
+{
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> vecCloud;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_f(new pcl::PointCloud<pcl::PointXYZ>);
+
+      std::cout << "PointCloud before filtering: " << cloud->width * cloud->height << " data points." << std::endl;
+
+    // 先对点云做VoxelGrid滤波器对数据进行下采样，在这里进行下才样是为了加速处理过程
+    pcl::PCLPointCloud2::Ptr cloud_filtered_blob = voxelGridFilter(cloud, 0.1, 0.1, 0.1);
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
+    // 转换为模板点云
+    pcl::fromPCLPointCloud2(*cloud_filtered_blob, *cloud_filtered);
+
+    std::cout << "PointCloud after filtering: " << cloud_filtered->width * cloud_filtered->height << " data points." << std::endl;
+
+    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
+    pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
+
+    pcl::SACSegmentation<pcl::PointXYZ> seg;  // 创建分割对象
+    seg.setOptimizeCoefficients(true);        // 设置对估计模型参数进行优化处理
+    seg.setModelType(pcl::SACMODEL_PLANE);    // 设置分割模型类别
+    seg.setMethodType(pcl::SAC_RANSAC);       // 设置用哪个随机参数估计方法
+    seg.setMaxIterations(1000);               // 设置最大迭代次数
+    seg.setDistanceThreshold(0.01);           // 判断是否为模型内点的距离阀值
+
+      // 设置ExtractIndices的实际参数
+    pcl::ExtractIndices<pcl::PointXYZ> extract;  // 创建点云提取对象
+    int i = 0;
+    int nr_points = (int)cloud_filtered->points.size();  // 点云总数
+    for (int i = 0; cloud_filtered->points.size() > 0.3 * nr_points; i++)
+    {
+        // 为了处理点云包含的多个模型，在一个循环中执行该过程并在每次模型被提取后，保存剩余的点进行迭代
+        seg.setInputCloud(cloud_filtered);
+        seg.segment(*inliers, *coefficients);
+        if (inliers->indices.size() == 0)
+        {
+            // 无法估计给定数据集的平面模型。
+            std::cout << "Could not estimate a planar model for the given dataset." << std::endl;
+            break;
+        }
+        //提取入口
+        pcl::PointCloud<pcl::PointXYZ>::Ptr temp_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+        extract.setInputCloud(cloud_filtered);
+        extract.setIndices(inliers);
+        extract.setNegative(false);
+        extract.filter(*temp_cloud);
+        vecCloud.push_back(temp_cloud);
+        std::cout << "Extract the " << i << "point cloud : " << temp_cloud->width * temp_cloud->height << " data points." << std::endl;
+
+        //创建筛选对象
+        extract.setNegative(true);
+        extract.filter(*cloud_f);
+        cloud_filtered.swap(cloud_f);
+    }
+
+    return vecCloud;
+}
 
 
 PclTool::PclTool()

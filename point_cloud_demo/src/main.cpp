@@ -21,12 +21,25 @@ int main()
     std::filesystem::path data_3(DEFAULT_DATA_DIR);
     data_3 += "/table_scene_lms400.pcd";
 
+
+    // 点云提取
+    pcl::PCLPointCloud2::Ptr cloud2_table_cloud2 = PclTool::openPointCloudFile2(data_3.string());
+
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> vecExtraction = PclTool::cloudExtraction(cloud2_table_cloud2);
+    for (const auto& ones : vecExtraction)
+    {
+        PclTool::viewerPcl(ones);
+    }
+
+
+    // 点云投影
     pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclTool::openPointCloudFile(data_3.string());
 
 
-    //pcl::PointCloud<pcl::PointXYZ>::Ptr Projection_xy = PclTool::cloudProjection(table_cloud, 0.0, 0.0, 1.0, 0.0);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr Projection_xy = PclTool::cloudProjection(table_cloud, 0.0, 0.0, 1.0, 0.0);
 
-    //PclTool::viewerPcl(Projection_xy);
+    PclTool::viewerPcl(Projection_xy);
+
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr Projection_yz = PclTool::cloudProjection(table_cloud, 1.0, 0.0, 0.0, 0.0);
 
@@ -41,7 +54,6 @@ int main()
 
     return 0;
 
-    pcl::PCLPointCloud2::Ptr cloud2_table_cloud2 = PclTool::openPointCloudFile2(data_3.string());
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr concloud = PclTool::openPointCloudFile(data_2.string());
 

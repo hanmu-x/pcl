@@ -193,6 +193,12 @@ class PclTool
     /// <returns></returns>
     static pcl::PointCloud<pcl::PointXYZ>::Ptr cloudProjection(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float x, float y, float z, float c);
 
+    /// <summary>
+    /// 点云的提取
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <returns></returns>
+    static std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloudExtraction(pcl::PCLPointCloud2::Ptr cloud);
 
 
     PclTool();
