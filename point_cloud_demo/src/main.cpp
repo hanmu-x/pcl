@@ -21,6 +21,26 @@ int main()
     std::filesystem::path data_3(DEFAULT_DATA_DIR);
     data_3 += "/table_scene_lms400.pcd";
 
+    pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclTool::openPointCloudFile(data_3.string());
+
+        // 为条件定义对象添加比较算子
+    pcl::FieldComparison<pcl::PointXYZ>::ConstPtr comp1(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, 0.0));     // 添加在Z字段上大于0的比较算子
+    pcl::FieldComparison<pcl::PointXYZ>::ConstPtr comp2(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::LT, 0.08));     // 添加在Z字段上小于0.8的比较算子
+    std::vector<pcl::FieldComparison<pcl::PointXYZ>::ConstPtr> comparisons;
+    comparisons.push_back(comp1);
+    comparisons.push_back(comp2);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr condCloud = PclTool::conditionRemoval(table_cloud, comparisons);
+    
+    PclTool::viewerPcl(condCloud);
+
+    return 0;
+    
+    /// RadiusOutlinerRemoval 移除离群点
+    pcl::PointCloud<pcl::PointXYZ>::Ptr RORemoval_cloud = PclTool::RORemoval(table_cloud, 0.01, 1);
+    PclTool::viewerPcl(RORemoval_cloud);
+
+
+
 
     // 点云提取
     pcl::PCLPointCloud2::Ptr cloud2_table_cloud2 = PclTool::openPointCloudFile2(data_3.string());
@@ -33,7 +53,6 @@ int main()
 
 
     // 点云投影
-    pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclTool::openPointCloudFile(data_3.string());
 
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr Projection_xy = PclTool::cloudProjection(table_cloud, 0.0, 0.0, 1.0, 0.0);

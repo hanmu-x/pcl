@@ -26,6 +26,10 @@
 #include <pcl/filters/extract_indices.h>       // 从一个点云中提取索引 
 #include <pcl/segmentation/sac_segmentation.h>
 
+#include <pcl/filters/radius_outlier_removal.h> // RadiusOutlinerRemoval 移除离群点
+
+// #include <pcl/filters/conditional_removal.h> // ConditionalRemoval 移除离群点
+
 
 #include <pcl/console/time.h>  //pcl计算时间
 // pcl::console::TicToc time; time.tic();
@@ -542,6 +546,69 @@ std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> PclTool::cloudExtraction(pcl::P
     }
 
     return vecCloud;
+}
+
+
+pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::RORemoval(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius, int minInRadius)
+{
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
+
+    pcl::RadiusOutlierRemoval<pcl::PointXYZ> outrem;  // 创建滤波器
+
+    outrem.setInputCloud(cloud);        // 设置输入点云
+    outrem.setRadiusSearch(radius);     // 设置半径为0.8的范围内找临近点
+    outrem.setMinNeighborsInRadius(minInRadius);  // 设置查询点的邻域点集数小于2的删除
+    // apply filter
+    outrem.filter(*cloud_filtered);  // 执行条件滤波   在半径为0.8 在此半径内必须要有两个邻居点，此点才会保存
+    
+    return cloud_filtered;
+}
+
+ // ConditionalRemoval 移除离群点
+
+pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::conditionRemoval(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::vector<pcl::FieldComparison<pcl::PointXYZ>::ConstPtr> comparisons)
+{
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
+
+    // 创建条件限定的下的滤波器
+    pcl::ConditionAnd<pcl::PointXYZ>::Ptr range_cond(new pcl::ConditionAnd<pcl::PointXYZ>());  // 创建条件定义对象
+
+    // 添加在Z字段上大于0的比较算子
+    // GT greater than
+    // EQ equal
+    // LT less than
+    // GE greater than or equal
+    // LE less than  or equal 小于等于
+
+    //// 为条件定义对象添加比较算子
+    //pcl::FieldComparison<pcl::PointXYZ>::ConstPtr comp1(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, 0.0));     // 添加在Z字段上大于0的比较算子
+    //pcl::FieldComparison<pcl::PointXYZ>::ConstPtr comp2(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::LT, 0.8));     // 添加在Z字段上小于0.8的比较算子
+    //range_cond->addComparison(comp1);
+    //range_cond->addComparison(comp2);
+
+
+    //range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, 0.0)));  // 添加在Z字段上大于0的比较算子
+
+    //range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::LT, 0.8)));  // 添加在Z字段上小于0.8的比较算子
+
+    for (const auto& once : comparisons)
+    {
+        range_cond->addComparison(once);
+    }
+    
+    // 创建滤波器并用条件定义对象初始化
+    pcl::ConditionalRemoval<pcl::PointXYZ> condrem;
+    condrem.setCondition(range_cond);
+    condrem.setInputCloud(cloud);    // 输入点云
+    condrem.setKeepOrganized(true);  // 设置保持点云的结构
+    // 设置是否保留滤波后删除的点，以保持点云的有序性，通过setuserFilterValue设置的值填充点云；或从点云中删除滤波后的点，从而改变其组织结构
+    // 如果设置为true且不设置setUserFilterValue的值，则用nan填充点云
+    // https://blog.csdn.net/qq_37124765/article/details/82262863
+
+    // 执行滤波
+    condrem.filter(*cloud_filtered);
+
+    return cloud_filtered;
 }
 
 

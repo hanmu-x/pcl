@@ -6,7 +6,7 @@
 #include <pcl/point_cloud.h>   // 点云类型
 #include <pcl/point_types.h>    //点数据类型
 #include <pcl/PCLPointCloud2.h>
-
+#include <pcl/filters/conditional_removal.h> // ConditionalRemoval 移除离群点
 
 class PclTool
 {
@@ -199,6 +199,25 @@ class PclTool
     /// <param name="cloud"></param>
     /// <returns></returns>
     static std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloudExtraction(pcl::PCLPointCloud2::Ptr cloud);
+
+    /// <summary>
+    /// RadiusOutlinerRemoval 移除离群点
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <param name="radius">设置半径的范围内找临近点</param>
+    /// <param name="minInRadius">设置查询点的邻域点集数小于minInRadius的删除</param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::PointXYZ>::Ptr RORemoval(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius, int minInRadius);
+
+    /// <summary>
+    /// ConditionalRemoval 移除离群点
+    /// </summary>
+    /// <param name="cloud">点云</param>
+    /// <param name="comparisons">筛选条件</param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::PointXYZ>::Ptr conditionRemoval(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::vector<pcl::FieldComparison<pcl::PointXYZ>::ConstPtr> comparisons);
+
+
 
 
     PclTool();
