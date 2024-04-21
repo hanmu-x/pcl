@@ -15,12 +15,20 @@ int main()
     std::filesystem::path data_1(DEFAULT_DATA_DIR);
     data_1 += "/tuzi.pcd";
 
-
     std::filesystem::path data_2(DEFAULT_DATA_DIR);
     data_2 += "/consensus.pcd";
 
     std::filesystem::path data_3(DEFAULT_DATA_DIR);
     data_3 += "/table_scene_lms400.pcd";
+
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclTool::openPointCloudFile(data_3.string());
+
+    pcl::PointCloud<pcl::Normal>::Ptr normal = PclTool::PclTool::normalCalculation(table_cloud, 0.03);
+    PclTool::viewerPcl(table_cloud, normal);
+
+    return 0;
+
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr concloud = PclTool::openPointCloudFile(data_2.string());
 
@@ -36,7 +44,6 @@ int main()
 
     return 0;
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclTool::openPointCloudFile(data_3.string());
 
         // 为条件定义对象添加比较算子
     pcl::FieldComparison<pcl::PointXYZ>::ConstPtr comp1(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, 0.0));     // 添加在Z字段上大于0的比较算子

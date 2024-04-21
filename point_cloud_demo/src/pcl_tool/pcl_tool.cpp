@@ -5,31 +5,25 @@
 #include <pcl/io/pcd_io.h>                   // 读取和写入PCD
 #include <pcl/io/ply_io.h>                   // 读取和写入PLY
 #include <pcl/visualization/cloud_viewer.h>  // 可视化点云数据的CloudViewer类
-
 #include <pcl/kdtree/kdtree_flann.h>  //kdtree类定义头文件
 #include <pcl/octree/octree.h>        //八叉树头文件
-
 #include <pcl/sample_consensus/ransac.h>
 #include <pcl/sample_consensus/sac_model_plane.h>
 #include <pcl/sample_consensus/sac_model_sphere.h>
-
 #include <pcl/filters/passthrough.h>  // 直通滤波
 #include <pcl/common/common_headers.h>
-
 #include <pcl/filters/voxel_grid.h>  // VoxelGrid滤波下采样
-
 #include <pcl/filters/statistical_outlier_removal.h>  // statisticalOutlierRemoval滤波器移除离群点
-
 #include <pcl/ModelCoefficients.h>        //模型系数头文件
 #include <pcl/filters/project_inliers.h>  //投影滤波类头文件
-
 #include <pcl/filters/extract_indices.h>  // 从一个点云中提取索引
 #include <pcl/segmentation/sac_segmentation.h>
-
 #include <pcl/filters/radius_outlier_removal.h>  // RadiusOutlinerRemoval 移除离群点
 #include <pcl/filters/impl/bilateral.hpp>        // 双边滤波
-
 // #include <pcl/filters/conditional_removal.h> // ConditionalRemoval 移除离群点
+#include <pcl/features/integral_image_normal.h>  //法线估计类头文件
+#include <pcl/features/normal_3d.h>
+
 
 #include <pcl/console/time.h>  //pcl计算时间
 // pcl::console::TicToc time; time.tic();
@@ -43,7 +37,7 @@ void viewerOneOff(pcl::visualization::PCLVisualizer& viewer)
     viewer.setBackgroundColor(0, 0, 0);  // 设置背景颜色为黑色
 }
 
-bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
+bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointCloud<pcl::Normal>::Ptr normals)
 {
     if (cloud == nullptr)
     {
@@ -54,12 +48,23 @@ bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
     std::cout << "point size:" << cloud->points.size() << std::endl;
     std::cout << "height:" << cloud->height << std::endl;
     std::cout << "width:" << cloud->width << std::endl;
-    pcl::visualization::CloudViewer viewer("Cloud Viewer: Rabbit");
+    pcl::visualization::PCLVisualizer viewer("Cloud Viewer: Rabbit");
 
-    viewer.showCloud(cloud);
-    viewer.runOnVisualizationThreadOnce(viewerOneOff);
+    viewer.setBackgroundColor(0.0, 0.0, 0.0);
+    viewer.addPointCloud(cloud);
+    if (normals != nullptr)
+    {
+        viewer.addPointCloudNormals<pcl::PointXYZ, pcl::Normal>(cloud, normals);
+    }
+    while (!viewer.wasStopped())
+    {
+        viewer.spinOnce();
+    }
 
-    system("pause");
+    //viewer.showCloud(cloud);
+    //viewer.runOnVisualizationThreadOnce(viewerOneOff);
+    //system("pause");
+
     std::cout << "End show " << std::endl;
     return true;
 }
@@ -630,6 +635,50 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr PclTool::bilateralFilter(const pcl::PointCl
 
     return cloud_filtered;
 }
+
+pcl::PointCloud<pcl::Normal>::Ptr PclTool::normalCalculation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius)
+{
+    // 创建法线估计估计向量
+    pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
+    ne.setInputCloud(cloud);
+    // 创建一个空的KdTree对象，并把它传递给法线估计向量
+    // 基于给出的输入数据集，KdTree将被建立
+    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
+    ne.setSearchMethod(tree);
+    // 存储输出数据
+    pcl::PointCloud<pcl::Normal>::Ptr cloud_normals(new pcl::PointCloud<pcl::Normal>);
+    // 使用半径在查询点周围3厘米范围内的所有临近元素
+    ne.setRadiusSearch(radius);  // 单位:米
+    // 计算特征值
+    ne.compute(*cloud_normals);
+
+    return cloud_normals;
+}
+
+pcl::PointCloud<pcl::Normal>::Ptr PclTool::normalCalculationFromIndicators(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius, std::vector<int> indicators)
+{
+    // //创建NormalEstimation类，并将输入数据集传递给它
+    pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
+    ne.setInputCloud(cloud);
+
+    pcl::shared_ptr<std::vector<int>> indicesptr(new std::vector<int>(indicators));
+    ne.setIndices(indicesptr);
+
+    // 创建一个空的kdtree表示形式，并将其传递给normal estimation 对象
+    // 它的内容将根据给定的输入数据集填充到对象内部（因为未提供其他搜索表面）。
+    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
+    ne.setSearchMethod(tree);
+
+    pcl::PointCloud<pcl::Normal>::Ptr cloud_normals(new pcl::PointCloud<pcl::Normal>);
+    // 在半径3cm的范围内近邻
+    ne.setRadiusSearch(radius);
+    // 计算特征
+    ne.compute(*cloud_normals);
+
+    return cloud_normals;
+}
+
+
 
 PclTool::PclTool()
 {

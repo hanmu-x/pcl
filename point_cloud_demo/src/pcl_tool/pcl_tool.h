@@ -16,7 +16,7 @@ class PclTool
     /// </summary>
     /// <param name="cloud"></param>
     /// <returns></returns>
-    static bool viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+    static bool viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointCloud<pcl::Normal>::Ptr normals = nullptr);
 
     /// <summary>
     /// pcl::PCLPointCloud2::Ptr点云,可视化展示
@@ -150,10 +150,6 @@ class PclTool
     /// <returns>返回点的索引</returns>
     static std::vector<int> randomSampleConsensusALG(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const double threshold, const unsigned int type);
 
-    ////////////// tracking 跟踪 ///////////////
-
-    ////////////// 深度图 ///////////////
-
     ////////////// filters 滤波 ///////////////
 
     /// <summary>
@@ -230,6 +226,27 @@ class PclTool
     /// <param name="halfSize">高斯双边滤波器窗口的一半大小</param>
     /// <returns></returns>
     static pcl::PointCloud<pcl::PointXYZI>::Ptr bilateralFilter(const pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const double standard_dev, const double halfSize);
+
+    /// <summary>
+    /// 法线估算
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <param name="radius">半径,单位米</param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::Normal>::Ptr normalCalculation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius);
+
+    /// <summary>
+    /// 指定索引的法线估算
+    /// </summary>
+    /// <param name="cloud">点云</param>
+    /// <param name="radius">半径</param>
+    /// <param name="indicators">指定的索引值</param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::Normal>::Ptr normalCalculationFromIndicators(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius, std::vector<int> indicators);
+
+    ////////////// tracking 跟踪 ///////////////
+
+    ////////////// 深度图 ///////////////
 
     PclTool();
     ~PclTool();
