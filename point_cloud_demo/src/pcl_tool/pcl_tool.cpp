@@ -245,44 +245,44 @@ bool PclTool::copyPcd(const pcl::PointCloud<pcl::PointXYZ>::Ptr fromCloud, pcl::
     return true;
 }
 
-bool PclTool::link(std::string fpcd, std::string spcd)
-{
-    // 读取点云
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1(new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::io::loadPCDFile(fpcd.c_str(), *cloud1);
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2(new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::io::loadPCDFile(spcd.c_str(), *cloud2);
-
-    // 定义对象
-    pcl::visualization::PCLVisualizer viewer;
-    // 设置背景颜色，默认黑色
-    viewer.setBackgroundColor(100, 100, 100);  // rgb
-
-    // --- 显示点云数据 ----
-    // "cloud1" 为显示id，默认cloud,显示多个点云时用默认会报警告。
-    viewer.addPointCloud(cloud1, "cloud1");
-
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red(cloud2, 255, 0, 0);  // rgb
-    // 将点云设置颜色，默认白色
-    viewer.addPointCloud(cloud2, red, "cloud2");
-
-    // 将两个点连线
-    pcl::PointXYZ temp1 = cloud1->points[0];
-    pcl::PointXYZ temp2 = cloud1->points[10];
-
-    viewer.addLine(temp1, temp2, "line0");
-
-    // --- 显示网格数据 ---
-    // pcl::PolygonMesh mesh;
-    // pcl::io::loadPLYFile("read.ply", mesh);
-    // viewer.addPolygonMesh(mesh);
-
-    viewer.spin();
-
-    system("pause");
-    return true;
-}
+//bool PclTool::link(std::string fpcd, std::string spcd)
+//{
+//    // 读取点云
+//    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1(new pcl::PointCloud<pcl::PointXYZ>);
+//    pcl::io::loadPCDFile(fpcd.c_str(), *cloud1);
+//
+//    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2(new pcl::PointCloud<pcl::PointXYZ>);
+//    pcl::io::loadPCDFile(spcd.c_str(), *cloud2);
+//
+//    // 定义对象
+//    pcl::visualization::PCLVisualizer viewer;
+//    // 设置背景颜色，默认黑色
+//    viewer.setBackgroundColor(100, 100, 100);  // rgb
+//
+//    // --- 显示点云数据 ----
+//    // "cloud1" 为显示id，默认cloud,显示多个点云时用默认会报警告。
+//    viewer.addPointCloud(cloud1, "cloud1");
+//
+//    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red(cloud2, 255, 0, 0);  // rgb
+//    // 将点云设置颜色，默认白色
+//    viewer.addPointCloud(cloud2, red, "cloud2");
+//
+//    // 将两个点连线
+//    pcl::PointXYZ temp1 = cloud1->points[0];
+//    pcl::PointXYZ temp2 = cloud1->points[10];
+//
+//    viewer.addLine(temp1, temp2, "line0");
+//
+//    // --- 显示网格数据 ---
+//    // pcl::PolygonMesh mesh;
+//    // pcl::io::loadPLYFile("read.ply", mesh);
+//    // viewer.addPolygonMesh(mesh);
+//
+//    viewer.spin();
+//
+//    system("pause");
+//    return true;
+//}
 
 std::vector<int> PclTool::kdtreeKSearch(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const pcl::PointXYZ searchPoint, const unsigned int k)
 {
@@ -408,7 +408,7 @@ std::vector<int> PclTool::octreeChangeDetection(const pcl::PointCloud<pcl::Point
 }
 
 
-std::vector<int> PclTool::randomSampleConsensus(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const unsigned int type)
+std::vector<int> PclTool::randomSampleConsensusALG(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const double threshold, const unsigned int type)
 {
     std::vector<int> inliers;
     if (type == 1)
@@ -416,7 +416,7 @@ std::vector<int> PclTool::randomSampleConsensus(const pcl::PointCloud<pcl::Point
         // 平面
         pcl::SampleConsensusModelPlane<pcl::PointXYZ>::Ptr model_p(new pcl::SampleConsensusModelPlane<pcl::PointXYZ>(cloud));
         pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(model_p);
-        ransac.setDistanceThreshold(.01);
+        ransac.setDistanceThreshold(threshold);
         ransac.computeModel();
         ransac.getInliers(inliers);
     }
@@ -425,7 +425,7 @@ std::vector<int> PclTool::randomSampleConsensus(const pcl::PointCloud<pcl::Point
         // 球体
         pcl::SampleConsensusModelSphere<pcl::PointXYZ>::Ptr model_s(new pcl::SampleConsensusModelSphere<pcl::PointXYZ>(cloud));
         pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(model_s);
-        ransac.setDistanceThreshold(.01);
+        ransac.setDistanceThreshold(threshold);
         ransac.computeModel();
         ransac.getInliers(inliers);
     }

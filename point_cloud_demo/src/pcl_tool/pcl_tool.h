@@ -78,13 +78,13 @@ class PclTool
     /// <returns></returns>
     static bool copyPcd(const pcl::PointCloud<pcl::PointXYZ>::Ptr fromCloud, pcl::PointCloud<pcl::PointXYZ>::Ptr& toColoud, std::vector<int> copyIndexs);
 
-    /// <summary>
-    /// 连接点云
-    /// </summary>
-    /// <param name="fpcd"></param>
-    /// <param name="spcd"></param>
-    /// <returns></returns>
-    static bool link(std::string fpcd, std::string spcd);
+    ///// <summary>
+    ///// 连接点云
+    ///// </summary>
+    ///// <param name="fpcd"></param>
+    ///// <param name="spcd"></param>
+    ///// <returns></returns>
+    //static bool link(std::string fpcd, std::string spcd);
 
     ////////////////// kdtree /////////////////
 
@@ -146,7 +146,14 @@ class PclTool
 
     ////////////// 随机采样一致性算法 ///////////////
     
-    static std::vector<int> randomSampleConsensus(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const unsigned int type);
+    /// <summary>
+    /// 随机采样一致性算法
+    /// </summary>
+    /// <param name="cloud">点云</param>
+    /// <param name="threshold">阈值</param>
+    /// <param name="type">1:平面算法,2:球体</param>
+    /// <returns>返回点的索引</returns>
+    static std::vector<int> randomSampleConsensusALG(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const double threshold, const unsigned int type);
 
     ////////////// tracking 跟踪 ///////////////
 

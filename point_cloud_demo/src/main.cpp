@@ -21,6 +21,20 @@ int main()
     std::filesystem::path data_3(DEFAULT_DATA_DIR);
     data_3 += "/table_scene_lms400.pcd";
 
+    pcl::PointCloud<pcl::PointXYZ>::Ptr concloud = PclTool::openPointCloudFile(data_2.string());
+
+    std::vector<int> index2 = PclTool::randomSampleConsensusALG(concloud, 0.6, 2);
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr outcloud(new pcl::PointCloud<pcl::PointXYZ>);
+
+    if (PclTool::copyPcd(concloud, outcloud, index2))
+    {
+        // 打开pcd
+        PclTool::viewerPcl(outcloud);
+    }
+
+    return 0;
+
     pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclTool::openPointCloudFile(data_3.string());
 
         // 为条件定义对象添加比较算子
@@ -74,8 +88,6 @@ int main()
     return 0;
 
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr concloud = PclTool::openPointCloudFile(data_2.string());
-
 
     pcl::PCLPointCloud2::Ptr cloud2_table_fl = PclTool::voxelGridFilter(cloud2_table_cloud2, 0.1, 0.1, 0.1);
 
@@ -92,17 +104,6 @@ int main()
 
 
 
-    std::vector<int> index2 = PclTool::randomSampleConsensus(concloud, 2);
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr outcloud(new pcl::PointCloud<pcl::PointXYZ>);
-
-    if (PclTool::copyPcd(concloud, outcloud, index2))
-    {
-        // 打开pcd
-        PclTool::viewerPcl(outcloud);
-    }
-
-    return 0;
 
 
 
