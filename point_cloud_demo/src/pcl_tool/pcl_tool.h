@@ -3,15 +3,14 @@
 #include <string>
 #include <vector>
 
-#include <pcl/point_cloud.h>   // 点云类型
-#include <pcl/point_types.h>    //点数据类型
+#include <pcl/point_cloud.h>  // 点云类型
+#include <pcl/point_types.h>  //点数据类型
 #include <pcl/PCLPointCloud2.h>
-#include <pcl/filters/conditional_removal.h> // ConditionalRemoval 移除离群点
+#include <pcl/filters/conditional_removal.h>  // ConditionalRemoval 移除离群点
 
 class PclTool
 {
   public:
-
     /// <summary>
     /// 通过pcd点云指针打开,可视化展示
     /// </summary>
@@ -28,7 +27,6 @@ class PclTool
 
     static bool viewerPcl(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud);
 
-
     /// <summary>
     /// 打开点云数据文件(pcd,ply)文件
     /// </summary>
@@ -42,7 +40,6 @@ class PclTool
     /// <param name="filename"></param>
     /// <returns></returns>
     static pcl::PCLPointCloud2::Ptr openPointCloudFile2(const std::string& filename);
-
 
     /// <summary>
     /// 保存点云到指定的文件中
@@ -58,8 +55,6 @@ class PclTool
     /// <param name="pcdFile"></param>
     /// <returns></returns>
     static bool openPcd(std::string pcdFile);
-
-
 
     /// <summary>
     /// 赋值一个点云文件到另一个点云文件中
@@ -84,7 +79,7 @@ class PclTool
     ///// <param name="fpcd"></param>
     ///// <param name="spcd"></param>
     ///// <returns></returns>
-    //static bool link(std::string fpcd, std::string spcd);
+    // static bool link(std::string fpcd, std::string spcd);
 
     ////////////////// kdtree /////////////////
 
@@ -145,7 +140,7 @@ class PclTool
     static std::vector<int> octreeChangeDetection(const pcl::PointCloud<pcl::PointXYZ>::Ptr beforCloud, const pcl::PointCloud<pcl::PointXYZ>::Ptr afterCloud, const float resolution);
 
     ////////////// 随机采样一致性算法 ///////////////
-    
+
     /// <summary>
     /// 随机采样一致性算法
     /// </summary>
@@ -158,7 +153,6 @@ class PclTool
     ////////////// tracking 跟踪 ///////////////
 
     ////////////// 深度图 ///////////////
-
 
     ////////////// filters 滤波 ///////////////
 
@@ -228,8 +222,14 @@ class PclTool
     /// <returns></returns>
     static pcl::PointCloud<pcl::PointXYZ>::Ptr conditionRemoval(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::vector<pcl::FieldComparison<pcl::PointXYZ>::ConstPtr> comparisons);
 
-    static pcl::PointCloud<pcl::PointXYZI>::Ptr bilateralFilter(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud);
-
+    /// <summary>
+    /// 双边滤波
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <param name="standard_dev">设置标准偏差</param>
+    /// <param name="halfSize">高斯双边滤波器窗口的一半大小</param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::PointXYZI>::Ptr bilateralFilter(const pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const double standard_dev, const double halfSize);
 
     PclTool();
     ~PclTool();

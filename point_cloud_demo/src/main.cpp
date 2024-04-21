@@ -15,6 +15,7 @@ int main()
     std::filesystem::path data_1(DEFAULT_DATA_DIR);
     data_1 += "/tuzi.pcd";
 
+
     std::filesystem::path data_2(DEFAULT_DATA_DIR);
     data_2 += "/consensus.pcd";
 

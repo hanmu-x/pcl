@@ -2,8 +2,8 @@
 #include "pcl_tool.h"
 #include <filesystem>
 
-#include <pcl/io/pcd_io.h>  // 读取和写入PCD
-#include<pcl/io/ply_io.h> // 读取和写入PLY
+#include <pcl/io/pcd_io.h>                   // 读取和写入PCD
+#include <pcl/io/ply_io.h>                   // 读取和写入PLY
 #include <pcl/visualization/cloud_viewer.h>  // 可视化点云数据的CloudViewer类
 
 #include <pcl/kdtree/kdtree_flann.h>  //kdtree类定义头文件
@@ -14,24 +14,22 @@
 #include <pcl/sample_consensus/sac_model_sphere.h>
 
 #include <pcl/filters/passthrough.h>  // 直通滤波
-#include<pcl/common/common_headers.h>
+#include <pcl/common/common_headers.h>
 
-#include <pcl/filters/voxel_grid.h> // VoxelGrid滤波下采样
+#include <pcl/filters/voxel_grid.h>  // VoxelGrid滤波下采样
 
-#include <pcl/filters/statistical_outlier_removal.h> // statisticalOutlierRemoval滤波器移除离群点
+#include <pcl/filters/statistical_outlier_removal.h>  // statisticalOutlierRemoval滤波器移除离群点
 
-#include <pcl/ModelCoefficients.h>             //模型系数头文件
-#include <pcl/filters/project_inliers.h>       //投影滤波类头文件
+#include <pcl/ModelCoefficients.h>        //模型系数头文件
+#include <pcl/filters/project_inliers.h>  //投影滤波类头文件
 
-#include <pcl/filters/extract_indices.h>       // 从一个点云中提取索引 
+#include <pcl/filters/extract_indices.h>  // 从一个点云中提取索引
 #include <pcl/segmentation/sac_segmentation.h>
 
-#include <pcl/filters/radius_outlier_removal.h> // RadiusOutlinerRemoval 移除离群点
-#include <pcl/filters/impl/bilateral.hpp>  // 双边滤波
-
+#include <pcl/filters/radius_outlier_removal.h>  // RadiusOutlinerRemoval 移除离群点
+#include <pcl/filters/impl/bilateral.hpp>        // 双边滤波
 
 // #include <pcl/filters/conditional_removal.h> // ConditionalRemoval 移除离群点
-
 
 #include <pcl/console/time.h>  //pcl计算时间
 // pcl::console::TicToc time; time.tic();
@@ -52,15 +50,15 @@ bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
         std::cout << "The point cloud data is empty" << std::endl;
         return false;
     }
-    pcl::console::TicToc time;
-    time.tic();
-    std::cout << cloud->points.size() << std::endl;
+
+    std::cout << "point size:" << cloud->points.size() << std::endl;
+    std::cout << "height:" << cloud->height << std::endl;
+    std::cout << "width:" << cloud->width << std::endl;
     pcl::visualization::CloudViewer viewer("Cloud Viewer: Rabbit");
 
     viewer.showCloud(cloud);
     viewer.runOnVisualizationThreadOnce(viewerOneOff);
 
-    cout << time.toc() / 1000 << "s" << endl;
     system("pause");
     std::cout << "End show " << std::endl;
     return true;
@@ -75,14 +73,18 @@ bool PclTool::viewerPcl(pcl::PCLPointCloud2::Ptr cloud)
     }
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_xyz(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromPCLPointCloud2(*cloud, *cloud_xyz);  // 将PCLPointCloud2转换为PointXYZ类型的点云
-    pcl::console::TicToc time;
-    time.tic();
-    std::cout << cloud_xyz->points.size() << std::endl;
+
+    std::cout << "point size:" << cloud_xyz->points.size() << std::endl;
+    std::cout << "height:" << cloud_xyz->height << std::endl;
+    std::cout << "width:" << cloud_xyz->width << std::endl;
+
     pcl::visualization::CloudViewer viewer("Cloud Viewer: Rabbit");
+
     viewer.showCloud(cloud_xyz);
     viewer.runOnVisualizationThreadOnce(viewerOneOff);
-    cout << time.toc() / 1000 << "s" << endl;
+
     system("pause");
+    std::cout << "End show " << std::endl;
     return true;
 }
 
@@ -93,15 +95,15 @@ bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud)
         std::cout << "The point cloud data is empty" << std::endl;
         return false;
     }
-    pcl::console::TicToc time;
-    time.tic();
-    std::cout << cloud->points.size() << std::endl;
+
+    std::cout << "point size:" << cloud->points.size() << std::endl;
+    std::cout << "height:" << cloud->height << std::endl;
+    std::cout << "width:" << cloud->width << std::endl;
     pcl::visualization::CloudViewer viewer("Cloud Viewer: Rabbit");
 
     viewer.showCloud(cloud);
     viewer.runOnVisualizationThreadOnce(viewerOneOff);
 
-    cout << time.toc() / 1000 << "s" << endl;
     system("pause");
     std::cout << "End show " << std::endl;
     return true;
@@ -171,7 +173,6 @@ pcl::PCLPointCloud2::Ptr PclTool::openPointCloudFile2(const std::string& filenam
     return cloud;
 }
 
-
 bool PclTool::savePointCloudFile(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, const std::string& filename)
 {
     if (!cloud || cloud->empty())
@@ -184,8 +185,6 @@ bool PclTool::savePointCloudFile(const pcl::PointCloud<pcl::PointXYZ>::Ptr& clou
     std::cout << "成功将点云数据写入到文件: " << filename << std::endl;
     return true;
 }
-
-
 
 bool PclTool::openPcd(std::string pcdFile)
 {
@@ -210,8 +209,6 @@ bool PclTool::openPcd(std::string pcdFile)
     std::cout << "End show " << std::endl;
     return true;
 }
-
-
 
 bool PclTool::copyPcd(std::string fromPcd, std::string toPcd)
 {
@@ -245,44 +242,44 @@ bool PclTool::copyPcd(const pcl::PointCloud<pcl::PointXYZ>::Ptr fromCloud, pcl::
     return true;
 }
 
-//bool PclTool::link(std::string fpcd, std::string spcd)
+// bool PclTool::link(std::string fpcd, std::string spcd)
 //{
-//    // 读取点云
-//    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1(new pcl::PointCloud<pcl::PointXYZ>);
-//    pcl::io::loadPCDFile(fpcd.c_str(), *cloud1);
+//     // 读取点云
+//     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud1(new pcl::PointCloud<pcl::PointXYZ>);
+//     pcl::io::loadPCDFile(fpcd.c_str(), *cloud1);
 //
-//    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2(new pcl::PointCloud<pcl::PointXYZ>);
-//    pcl::io::loadPCDFile(spcd.c_str(), *cloud2);
+//     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud2(new pcl::PointCloud<pcl::PointXYZ>);
+//     pcl::io::loadPCDFile(spcd.c_str(), *cloud2);
 //
-//    // 定义对象
-//    pcl::visualization::PCLVisualizer viewer;
-//    // 设置背景颜色，默认黑色
-//    viewer.setBackgroundColor(100, 100, 100);  // rgb
+//     // 定义对象
+//     pcl::visualization::PCLVisualizer viewer;
+//     // 设置背景颜色，默认黑色
+//     viewer.setBackgroundColor(100, 100, 100);  // rgb
 //
-//    // --- 显示点云数据 ----
-//    // "cloud1" 为显示id，默认cloud,显示多个点云时用默认会报警告。
-//    viewer.addPointCloud(cloud1, "cloud1");
+//     // --- 显示点云数据 ----
+//     // "cloud1" 为显示id，默认cloud,显示多个点云时用默认会报警告。
+//     viewer.addPointCloud(cloud1, "cloud1");
 //
-//    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red(cloud2, 255, 0, 0);  // rgb
-//    // 将点云设置颜色，默认白色
-//    viewer.addPointCloud(cloud2, red, "cloud2");
+//     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red(cloud2, 255, 0, 0);  // rgb
+//     // 将点云设置颜色，默认白色
+//     viewer.addPointCloud(cloud2, red, "cloud2");
 //
-//    // 将两个点连线
-//    pcl::PointXYZ temp1 = cloud1->points[0];
-//    pcl::PointXYZ temp2 = cloud1->points[10];
+//     // 将两个点连线
+//     pcl::PointXYZ temp1 = cloud1->points[0];
+//     pcl::PointXYZ temp2 = cloud1->points[10];
 //
-//    viewer.addLine(temp1, temp2, "line0");
+//     viewer.addLine(temp1, temp2, "line0");
 //
-//    // --- 显示网格数据 ---
-//    // pcl::PolygonMesh mesh;
-//    // pcl::io::loadPLYFile("read.ply", mesh);
-//    // viewer.addPolygonMesh(mesh);
+//     // --- 显示网格数据 ---
+//     // pcl::PolygonMesh mesh;
+//     // pcl::io::loadPLYFile("read.ply", mesh);
+//     // viewer.addPolygonMesh(mesh);
 //
-//    viewer.spin();
+//     viewer.spin();
 //
-//    system("pause");
-//    return true;
-//}
+//     system("pause");
+//     return true;
+// }
 
 std::vector<int> PclTool::kdtreeKSearch(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const pcl::PointXYZ searchPoint, const unsigned int k)
 {
@@ -333,10 +330,10 @@ std::vector<int> PclTool::kdtreeRadiusSearch(const pcl::PointCloud<pcl::PointXYZ
 std::vector<int> PclTool::octreeVoxelSearch(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const pcl::PointXYZ searchPoint, const float resolution)
 {
     pcl::octree::OctreePointCloudSearch<pcl::PointXYZ> octree(resolution);  // 初始化Octree
-    octree.setInputCloud(cloud);        // 设置输入点云 
-    octree.addPointsFromInputCloud();   // 构建octree
-    std::vector<int> pointIdxVec;       // 存储体素近邻搜索结果向量
-    if (octree.voxelSearch(searchPoint, pointIdxVec))  // 执行搜索
+    octree.setInputCloud(cloud);                                            // 设置输入点云
+    octree.addPointsFromInputCloud();                                       // 构建octree
+    std::vector<int> pointIdxVec;                                           // 存储体素近邻搜索结果向量
+    if (octree.voxelSearch(searchPoint, pointIdxVec))                       // 执行搜索
     {
         return pointIdxVec;
     }
@@ -346,13 +343,11 @@ std::vector<int> PclTool::octreeVoxelSearch(const pcl::PointCloud<pcl::PointXYZ>
     }
 }
 
-
 std::vector<int> PclTool::octreeKSearch(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const float resolution, const pcl::PointXYZ searchPoint, const unsigned int k)
 {
     pcl::octree::OctreePointCloudSearch<pcl::PointXYZ> octree(resolution);  // 初始化Octree
-    octree.setInputCloud(cloud);          // 设置输入点云
-    octree.addPointsFromInputCloud();     // 构建octree
-
+    octree.setInputCloud(cloud);                                            // 设置输入点云
+    octree.addPointsFromInputCloud();                                       // 构建octree
 
     std::vector<int> pointIdxNKNSearch;          // 结果点的索引的向量
     std::vector<float> pointNKNSquaredDistance;  // 搜索点与近邻之间的距离的平方
@@ -365,15 +360,13 @@ std::vector<int> PclTool::octreeKSearch(const pcl::PointCloud<pcl::PointXYZ>::Pt
     {
         return std::vector<int>();
     }
-
 }
-
 
 std::vector<int> PclTool::octreeRadiusSearch(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const float resolution, const pcl::PointXYZ searchPoint, const float radius)
 {
     pcl::octree::OctreePointCloudSearch<pcl::PointXYZ> octree(resolution);  // 初始化Octree
-    octree.setInputCloud(cloud);         // 设置输入点云
-    octree.addPointsFromInputCloud();    // 构建octree
+    octree.setInputCloud(cloud);                                            // 设置输入点云
+    octree.addPointsFromInputCloud();                                       // 构建octree
 
     std::vector<int> pointIdxRadiusSearch;
     std::vector<float> pointRadiusSquaredDistance;
@@ -387,7 +380,6 @@ std::vector<int> PclTool::octreeRadiusSearch(const pcl::PointCloud<pcl::PointXYZ
         return std::vector<int>();
     }
 }
-
 
 std::vector<int> PclTool::octreeChangeDetection(const pcl::PointCloud<pcl::PointXYZ>::Ptr beforCloud, const pcl::PointCloud<pcl::PointXYZ>::Ptr afterCloud, const float resolution)
 {
@@ -404,15 +396,13 @@ std::vector<int> PclTool::octreeChangeDetection(const pcl::PointCloud<pcl::Point
     // 获取前一 beforCloud 对应八叉树在 afterCloud 对应在八叉树中没有的点集
     octree.getPointIndicesFromNewVoxels(newPointIdxVector);
     return newPointIdxVector;
-
 }
-
 
 std::vector<int> PclTool::randomSampleConsensusALG(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, const double threshold, const unsigned int type)
 {
     std::vector<int> inliers;
     if (type == 1)
-    {  
+    {
         // 平面
         pcl::SampleConsensusModelPlane<pcl::PointXYZ>::Ptr model_p(new pcl::SampleConsensusModelPlane<pcl::PointXYZ>(cloud));
         pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(model_p);
@@ -421,7 +411,7 @@ std::vector<int> PclTool::randomSampleConsensusALG(const pcl::PointCloud<pcl::Po
         ransac.getInliers(inliers);
     }
     else if (type == 2)
-    {  
+    {
         // 球体
         pcl::SampleConsensusModelSphere<pcl::PointXYZ>::Ptr model_s(new pcl::SampleConsensusModelSphere<pcl::PointXYZ>(cloud));
         pcl::RandomSampleConsensus<pcl::PointXYZ> ransac(model_s);
@@ -437,28 +427,25 @@ std::vector<int> PclTool::randomSampleConsensusALG(const pcl::PointCloud<pcl::Po
     return inliers;
 }
 
-
-
 pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::passThroughFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::string field_name, float Limit_low, float Limit_hig, bool is_save)
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
 
     // 设置滤波器对象
     pcl::PassThrough<pcl::PointXYZ> pass;
-    pass.setInputCloud(cloud);       // 设置输入点云
-    pass.setFilterFieldName(field_name);  // 设置过滤时所需要点云类型的Z字段
+    pass.setInputCloud(cloud);                   // 设置输入点云
+    pass.setFilterFieldName(field_name);         // 设置过滤时所需要点云类型的Z字段
     pass.setFilterLimits(Limit_low, Limit_hig);  // 设置在过滤字段的范围
-    //if (is_save)
+    // if (is_save)
     //{
-    //    // is_save:true: 保留(Limit_low~Limit_hig)范围内的点
-    //    // is_save:false: 删除(Limit_low~Limit_hig)范围内的点
-    //    pass.getFilterLimitsNegative();  // 设置保留范围内还是过滤掉范围内
-    //}
+    //     // is_save:true: 保留(Limit_low~Limit_hig)范围内的点
+    //     // is_save:false: 删除(Limit_low~Limit_hig)范围内的点
+    //     pass.getFilterLimitsNegative();  // 设置保留范围内还是过滤掉范围内
+    // }
     pass.filter(*cloud_filtered);  // 执行滤波，保存过滤结果在cloud_filtered
 
     return cloud_filtered;
 }
-
 
 pcl::PCLPointCloud2::Ptr PclTool::voxelGridFilter(pcl::PCLPointCloud2::Ptr cloud, float lx, float ly, float lz)
 {
@@ -470,30 +457,27 @@ pcl::PCLPointCloud2::Ptr PclTool::voxelGridFilter(pcl::PCLPointCloud2::Ptr cloud
     sor.filter(*cloud_filtered);              // 执行滤波处理，存储输出
 
     return cloud_filtered;
-
 }
-
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::statisticalOutlierRemovalFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int meank, double threshold, bool inversion)
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;  // 创建滤波器对象
 
-    sor.setInputCloud(cloud);     // 设置待滤波的点云
-    sor.setMeanK(meank);          // 设置在进行统计时考虑查询点临近点数
-    sor.setStddevMulThresh(1.0);  // 设置判断是否为离群点的阀值
-    sor.setNegative(inversion);
-    sor.filter(*cloud_filtered);  // 存储
+    sor.setInputCloud(cloud);           // 设置待滤波的点云
+    sor.setMeanK(meank);                // 设置在进行统计时考虑查询点临近点数
+    sor.setStddevMulThresh(threshold);  // 设置判断是否为离群点的阀值,较大的阈值将导致更多的点被判定为离群点。
+    sor.setNegative(inversion);         // 是否对结果取反,false:删除离群点,true:保留离群点
+    sor.filter(*cloud_filtered);        // 存储
 
     return cloud_filtered;
 }
-
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::cloudProjection(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float x, float y, float z, float c)
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_projected(new pcl::PointCloud<pcl::PointXYZ>);
 
-      // 填充 ModelCoefficients 的值,使用ax+by+cz+d=0平面模型，其中 a=b=d=0,c=1 也就是X——Y平面
+    // 填充 ModelCoefficients 的值,使用ax+by+cz+d=0平面模型，其中 a=b=d=0,c=1 也就是X——Y平面
     // 定义模型系数对象，并填充对应的数据
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
     coefficients->values.resize(4);
@@ -502,7 +486,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::cloudProjection(pcl::PointCloud<pcl
     coefficients->values[2] = z;
     coefficients->values[3] = c;
 
-      // 创建 ProjectInliers 对象，使用ModelCoefficients作为投影对象的模型参数
+    // 创建 ProjectInliers 对象，使用ModelCoefficients作为投影对象的模型参数
     pcl::ProjectInliers<pcl::PointXYZ> proj;  // 创建投影滤波对象
     proj.setModelType(pcl::SACMODEL_PLANE);   // 设置对象对应的投影模型
     proj.setInputCloud(cloud);                // 设置输入点云
@@ -510,16 +494,14 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::cloudProjection(pcl::PointCloud<pcl
     proj.filter(*cloud_projected);            // 投影结果存储cloud_projected
 
     return cloud_projected;
-
 }
-
 
 std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> PclTool::cloudExtraction(pcl::PCLPointCloud2::Ptr cloud)
 {
     std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> vecCloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_f(new pcl::PointCloud<pcl::PointXYZ>);
 
-      std::cout << "PointCloud before filtering: " << cloud->width * cloud->height << " data points." << std::endl;
+    std::cout << "PointCloud before filtering: " << cloud->width * cloud->height << " data points." << std::endl;
 
     // 先对点云做VoxelGrid滤波器对数据进行下采样，在这里进行下才样是为了加速处理过程
     pcl::PCLPointCloud2::Ptr cloud_filtered_blob = voxelGridFilter(cloud, 0.1, 0.1, 0.1);
@@ -540,7 +522,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> PclTool::cloudExtraction(pcl::P
     seg.setMaxIterations(1000);               // 设置最大迭代次数
     seg.setDistanceThreshold(0.01);           // 判断是否为模型内点的距离阀值
 
-      // 设置ExtractIndices的实际参数
+    // 设置ExtractIndices的实际参数
     pcl::ExtractIndices<pcl::PointXYZ> extract;  // 创建点云提取对象
     int i = 0;
     int nr_points = (int)cloud_filtered->points.size();  // 点云总数
@@ -555,7 +537,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> PclTool::cloudExtraction(pcl::P
             std::cout << "Could not estimate a planar model for the given dataset." << std::endl;
             break;
         }
-        //提取入口
+        // 提取入口
         pcl::PointCloud<pcl::PointXYZ>::Ptr temp_cloud(new pcl::PointCloud<pcl::PointXYZ>);
         extract.setInputCloud(cloud_filtered);
         extract.setIndices(inliers);
@@ -564,7 +546,7 @@ std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> PclTool::cloudExtraction(pcl::P
         vecCloud.push_back(temp_cloud);
         std::cout << "Extract the " << i << "point cloud : " << temp_cloud->width * temp_cloud->height << " data points." << std::endl;
 
-        //创建筛选对象
+        // 创建筛选对象
         extract.setNegative(true);
         extract.filter(*cloud_f);
         cloud_filtered.swap(cloud_f);
@@ -573,23 +555,21 @@ std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> PclTool::cloudExtraction(pcl::P
     return vecCloud;
 }
 
-
 pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::RORemoval(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius, int minInRadius)
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
 
     pcl::RadiusOutlierRemoval<pcl::PointXYZ> outrem;  // 创建滤波器
 
-    outrem.setInputCloud(cloud);        // 设置输入点云
-    outrem.setRadiusSearch(radius);     // 设置半径为0.8的范围内找临近点
-    outrem.setMinNeighborsInRadius(minInRadius);  // 设置查询点的邻域点集数小于2的删除
-    // apply filter
-    outrem.filter(*cloud_filtered);  // 执行条件滤波   在半径为0.8 在此半径内必须要有两个邻居点，此点才会保存
-    
+    outrem.setInputCloud(cloud);                  // 设置输入点云
+    outrem.setRadiusSearch(radius);               // 设置半径为~的范围内找临近点
+    outrem.setMinNeighborsInRadius(minInRadius);  // 设置查询点的邻域点集数小于~的删除
+
+    outrem.filter(*cloud_filtered);  // 执行条件滤波   在半径为radius 在此半径内必须要有minInRadius个邻居点，此点才会保存
+
     return cloud_filtered;
 }
 
- // ConditionalRemoval 移除离群点
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::conditionRemoval(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::vector<pcl::FieldComparison<pcl::PointXYZ>::ConstPtr> comparisons)
 {
@@ -606,21 +586,20 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::conditionRemoval(pcl::PointCloud<pc
     // LE less than  or equal 小于等于
 
     //// 为条件定义对象添加比较算子
-    //pcl::FieldComparison<pcl::PointXYZ>::ConstPtr comp1(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, 0.0));     // 添加在Z字段上大于0的比较算子
-    //pcl::FieldComparison<pcl::PointXYZ>::ConstPtr comp2(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::LT, 0.8));     // 添加在Z字段上小于0.8的比较算子
-    //range_cond->addComparison(comp1);
-    //range_cond->addComparison(comp2);
+    // pcl::FieldComparison<pcl::PointXYZ>::ConstPtr comp1(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, 0.0));     // 添加在Z字段上大于0的比较算子
+    // pcl::FieldComparison<pcl::PointXYZ>::ConstPtr comp2(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::LT, 0.8));     // 添加在Z字段上小于0.8的比较算子
+    // range_cond->addComparison(comp1);
+    // range_cond->addComparison(comp2);
 
+    // range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, 0.0)));  // 添加在Z字段上大于0的比较算子
 
-    //range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, 0.0)));  // 添加在Z字段上大于0的比较算子
-
-    //range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::LT, 0.8)));  // 添加在Z字段上小于0.8的比较算子
+    // range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::LT, 0.8)));  // 添加在Z字段上小于0.8的比较算子
 
     for (const auto& once : comparisons)
     {
         range_cond->addComparison(once);
     }
-    
+
     // 创建滤波器并用条件定义对象初始化
     pcl::ConditionalRemoval<pcl::PointXYZ> condrem;
     condrem.setCondition(range_cond);
@@ -636,24 +615,21 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::conditionRemoval(pcl::PointCloud<pc
     return cloud_filtered;
 }
 
-
-pcl::PointCloud<pcl::PointXYZI>::Ptr PclTool::bilateralFilter(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud)
+pcl::PointCloud<pcl::PointXYZI>::Ptr PclTool::bilateralFilter(const pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const double standard_dev, const double halfSize)
 {
     pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZI>);
 
-    pcl::search::KdTree<pcl::PointXYZI>::Ptr tree1(new pcl::search::KdTree<pcl::PointXYZI>);
-    // Apply the filter
+    pcl::search::KdTree<pcl::PointXYZI>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZI>);
+    // 创建了一个双边滤波器对象 fbf, 指定了点云中每个点的类型pcl::PointXYZI
     pcl::BilateralFilter<pcl::PointXYZI> fbf;
     fbf.setInputCloud(cloud);
-    fbf.setSearchMethod(tree1);
-    fbf.setStdDev(0.1);
-    fbf.setHalfSize(0.1);
+    fbf.setSearchMethod(tree);
+    fbf.setStdDev(standard_dev);  // 设置标准偏差
+    fbf.setHalfSize(halfSize);    // 高斯双边滤波器窗口的一半大小
     fbf.filter(*cloud_filtered);
 
     return cloud_filtered;
 }
-
-
 
 PclTool::PclTool()
 {
