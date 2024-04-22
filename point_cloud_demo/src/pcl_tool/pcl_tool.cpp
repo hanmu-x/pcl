@@ -23,6 +23,7 @@
 // #include <pcl/filters/conditional_removal.h> // ConditionalRemoval 移除离群点
 #include <pcl/features/integral_image_normal.h>  //法线估计类头文件
 #include <pcl/features/normal_3d.h>
+#include <pcl/features/pfh.h>  //pfh特征估计类头文件
 
 
 #include <pcl/console/time.h>  //pcl计算时间
@@ -68,6 +69,7 @@ bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointClo
     std::cout << "End show " << std::endl;
     return true;
 }
+
 
 bool PclTool::viewerPcl(pcl::PCLPointCloud2::Ptr cloud)
 {
@@ -686,8 +688,8 @@ pcl::PointCloud<pcl::Normal>::Ptr PclTool::integralNormalCalculation(pcl::PointC
     /************************************************************************
     三种法线估计方法
      COVARIANCE_MATRIX 模式从具体某个点的局部邻域的协方差矩阵创建9个积分，来计算这个点的法线
-    AVERAGE_3D_GRADIENT   模式创建6个积分图来计算水平方向和垂直方向的平滑后的三维梯度并使用两个梯度间的向量积计算法线
-    AVERAGE_DEPTH——CHANGE  模式只创建了一个单一的积分图，从而平局深度变化计算法线
+     AVERAGE_3D_GRADIENT   模式创建6个积分图来计算水平方向和垂直方向的平滑后的三维梯度并使用两个梯度间的向量积计算法线
+     AVERAGE_DEPTH——CHANGE  模式只创建了一个单一的积分图，从而平局深度变化计算法线
     *****************************************************************************/
     ne.setNormalEstimationMethod(ne.AVERAGE_3D_GRADIENT);  // 设置法线估计的方式AVERAGE_3D_GRADIENT
 
@@ -701,7 +703,33 @@ pcl::PointCloud<pcl::Normal>::Ptr PclTool::integralNormalCalculation(pcl::PointC
 
 
 
+pcl::PointCloud<pcl::PFHSignature125>::Ptr PclTool::histogramFeatures(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius)
+{
+    pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>());
 
+    // 打开点云文件估计法线等
+    // 创建PFH估计对象pfh，并将输入点云数据集cloud和法线normals传递给它
+    pcl::PFHEstimation<pcl::PointXYZ, pcl::Normal, pcl::PFHSignature125> pfh;
+    pfh.setInputCloud(cloud);
+    pfh.setInputNormals(normals);
+
+     // 如果点云是类型为PointNormal,则执行pfh.setInputNormals (cloud);
+    // 创建一个空的kd树表示法，并把它传递给PFH估计对象。
+    // 基于已给的输入数据集，建立kdtree
+    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
+
+    // 输出数据集
+    pcl::PointCloud<pcl::PFHSignature125>::Ptr pfhs(new pcl::PointCloud<pcl::PFHSignature125>());
+
+    // 使用半径在5厘米范围内的所有邻元素。
+    // 注意：此处使用的半径必须要大于估计表面法线时使用的半径!!!
+    pfh.setRadiusSearch(radius);  // 计算pfh特征值
+
+    // 计算pfh特征值
+    pfh.compute(*pfhs);
+
+    return pfhs;
+}
 
 
 

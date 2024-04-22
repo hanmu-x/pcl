@@ -252,6 +252,16 @@ class PclTool
     /// <param name="smooth_size">法线优化时考虑的邻域的大小</param>
     /// <returns></returns>
     static pcl::PointCloud<pcl::Normal>::Ptr integralNormalCalculation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float depth_factor, float smooth_size);
+
+    /// <summary>
+    /// 点特征直方图（PFH）描述子
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <param name="radius"></param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::PFHSignature125>::Ptr histogramFeatures(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius);
+
+
     ////////////// tracking 跟踪 ///////////////
 
     ////////////// 深度图 ///////////////
