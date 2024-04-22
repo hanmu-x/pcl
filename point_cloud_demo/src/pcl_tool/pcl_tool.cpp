@@ -24,7 +24,7 @@
 #include <pcl/features/integral_image_normal.h>  //法线估计类头文件
 #include <pcl/features/normal_3d.h>
 #include <pcl/features/pfh.h>  //pfh特征估计类头文件
-#include <pcl/visualization/pcl_plotter.h> 
+#include <pcl/visualization/pcl_plotter.h> // 直方图的可视化 方法2
 
 #include <pcl/console/time.h>  //pcl计算时间
 // pcl::console::TicToc time; time.tic();
