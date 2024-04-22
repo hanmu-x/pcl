@@ -21,8 +21,18 @@ int main()
     std::filesystem::path data_3(DEFAULT_DATA_DIR);
     data_3 += "/table_scene_lms400.pcd";
 
-
     pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclTool::openPointCloudFile(data_3.string());
+
+    // 待查看----------------------------------
+    
+    // 待查看----------------------------------
+
+    // 待查看----------------------------------
+    pcl::PointCloud<pcl::Normal>::Ptr normal_intergra = PclTool::integralNormalCalculation(table_cloud, 0.02f, 10.0f);
+
+    PclTool::viewerPcl(table_cloud, normal_intergra);
+    return 0;
+    // 待查看----------------------------------
 
     pcl::PointCloud<pcl::Normal>::Ptr normal = PclTool::PclTool::normalCalculation(table_cloud, 0.03);
     PclTool::viewerPcl(table_cloud, normal);

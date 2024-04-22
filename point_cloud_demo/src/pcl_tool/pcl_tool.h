@@ -244,6 +244,14 @@ class PclTool
     /// <returns></returns>
     static pcl::PointCloud<pcl::Normal>::Ptr normalCalculationFromIndicators(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius, std::vector<int> indicators);
 
+    /// <summary>
+    /// 积分图法线估计
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <param name="depth_factor">深度变化系数</param>
+    /// <param name="smooth_size">法线优化时考虑的邻域的大小</param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::Normal>::Ptr integralNormalCalculation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float depth_factor, float smooth_size);
     ////////////// tracking 跟踪 ///////////////
 
     ////////////// 深度图 ///////////////
