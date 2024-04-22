@@ -21,16 +21,23 @@ int main()
     std::filesystem::path data_3(DEFAULT_DATA_DIR);
     data_3 += "/table_scene_lms400.pcd";
 
+    std::filesystem::path data_4(DEFAULT_DATA_DIR);
+    data_4 += "/ism_test_cat.pcd";
+
+
     pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclTool::openPointCloudFile(data_3.string());
-
-    // 待查看----------------------------------
-    
-    // 待查看----------------------------------
-
     // 待查看----------------------------------
     pcl::PointCloud<pcl::Normal>::Ptr normal_intergra = PclTool::integralNormalCalculation(table_cloud, 0.02f, 10.0f);
 
     PclTool::viewerPcl(table_cloud, normal_intergra);
+    return 0;
+    // 待查看----------------------------------
+
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cat_cloud = PclTool::openPointCloudFile(data_4.string());
+
+    // 待查看----------------------------------
+    pcl::PointCloud<pcl::PFHSignature125>::Ptr pfh = PclTool::histogramFeatures(cat_cloud, 0.05);
     return 0;
     // 待查看----------------------------------
 

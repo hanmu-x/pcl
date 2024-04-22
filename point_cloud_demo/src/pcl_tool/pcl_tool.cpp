@@ -24,7 +24,7 @@
 #include <pcl/features/integral_image_normal.h>  //法线估计类头文件
 #include <pcl/features/normal_3d.h>
 #include <pcl/features/pfh.h>  //pfh特征估计类头文件
-
+#include <pcl/visualization/pcl_plotter.h> 
 
 #include <pcl/console/time.h>  //pcl计算时间
 // pcl::console::TicToc time; time.tic();
@@ -727,6 +727,12 @@ pcl::PointCloud<pcl::PFHSignature125>::Ptr PclTool::histogramFeatures(pcl::Point
 
     // 计算pfh特征值
     pfh.compute(*pfhs);
+
+    // 临时添加测试
+    // ========直方图可视化=============================
+    pcl::visualization::PCLPlotter plotter;
+    plotter.addFeatureHistogram(*pfhs, 300);  // 设置的很坐标长度，该值越大，则显示的越细致
+    plotter.plot();
 
     return pfhs;
 }
