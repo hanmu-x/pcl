@@ -26,6 +26,7 @@ class PclTool
     static bool viewerPcl(pcl::PCLPointCloud2::Ptr cloud);
 
     static bool viewerPcl(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud);
+    static bool viewerPcl(pcl::PointCloud<pcl::PointNormal> cloud_normals);
 
     /// <summary>
     /// 打开点云数据文件(pcd,ply)文件
@@ -260,6 +261,14 @@ class PclTool
     /// <param name="radius"></param>
     /// <returns></returns>
     static pcl::PointCloud<pcl::PFHSignature125>::Ptr histogramFeatures(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius);
+
+    /// <summary>
+    /// 多项式重构的平滑和法线估计
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::PointNormal> smoothAndNormalCal(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+
 
 
     ////////////// tracking 跟踪 ///////////////

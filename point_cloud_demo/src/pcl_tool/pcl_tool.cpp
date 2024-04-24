@@ -25,6 +25,11 @@
 #include <pcl/features/normal_3d.h>
 #include <pcl/features/pfh.h>  //pfh特征估计类头文件
 #include <pcl/visualization/pcl_plotter.h> // 直方图的可视化 方法2
+#include <pcl/surface/mls.h>
+
+
+
+
 
 #include <pcl/console/time.h>  //pcl计算时间
 // pcl::console::TicToc time; time.tic();
@@ -115,6 +120,33 @@ bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud)
     std::cout << "End show " << std::endl;
     return true;
 }
+
+bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointNormal> cloud_normals)
+{
+    if (cloud_normals.empty())
+    {
+        std::cout << "The point cloud data is empty" << std::endl;
+        return false;
+    }
+
+    std::cout << "point size:" << cloud_normals.points.size() << std::endl;
+    std::cout << "height:" << cloud_normals.height << std::endl;
+    std::cout << "width:" << cloud_normals.width << std::endl;
+
+    pcl::visualization::PCLVisualizer viewer("Cloud Viewer: Normals");
+
+    // 将带有法线的点云可视化
+    viewer.addPointCloudNormals<pcl::PointNormal>(cloud_normals.makeShared());
+
+    while (!viewer.wasStopped())
+    {
+        viewer.spinOnce();
+    }
+
+    std::cout << "End show " << std::endl;
+    return true;
+}
+
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::openPointCloudFile(const std::string& filename)
 {
@@ -738,8 +770,30 @@ pcl::PointCloud<pcl::PFHSignature125>::Ptr PclTool::histogramFeatures(pcl::Point
 }
 
 
+pcl::PointCloud<pcl::PointNormal> PclTool::smoothAndNormalCal(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
+{
+    // Create a KD-Tree
+    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
 
+    // 输出具有PointNormal类型，以便存储MLS计算的法线
+    pcl::PointCloud<pcl::PointNormal> mls_points;
 
+    // Init对象（第二种点类型用于法线，即使未使用）
+    pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
+
+    mls.setComputeNormals(true);
+
+    // 设置参数
+    mls.setInputCloud(cloud);
+    mls.setPolynomialOrder(2);
+    mls.setSearchMethod(tree);
+    mls.setSearchRadius(0.1);
+
+    // 修复
+    mls.process(mls_points); 
+
+    return mls_points;
+}
 
 
 
