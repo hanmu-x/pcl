@@ -269,13 +269,18 @@ class PclTool
     /// <returns></returns>
     static pcl::PointCloud<pcl::PointNormal> smoothAndNormalCal(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
+    /// <summary>
+    /// 平面模型上提取凸（凹）多边形
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::PointXYZ>::Ptr ExtractConvexConcavePolygons(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
+        ////////////// tracking 跟踪 ///////////////
 
-    ////////////// tracking 跟踪 ///////////////
+        ////////////// 深度图 ///////////////
 
-    ////////////// 深度图 ///////////////
-
-    PclTool();
+        PclTool();
     ~PclTool();
 
   private:

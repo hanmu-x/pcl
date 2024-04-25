@@ -27,6 +27,16 @@ int main()
     std::filesystem::path data_5(DEFAULT_DATA_DIR);
     data_5 += "/ism_train_cat.pcd";
 
+    std::filesystem::path data_6(DEFAULT_DATA_DIR);
+    data_6 += "/table_scene_mug_stereo_textured.pcd";
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr table_scene = PclTool::openPointCloudFile(data_6.string());
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr talble_hull = PclTool::ExtractConvexConcavePolygons(table_scene);
+    PclTool::viewerPcl(talble_hull);
+    return 0;
+
+
     pcl::PointCloud<pcl::PointXYZ>::Ptr train_cat = PclTool::openPointCloudFile(data_5.string());
     PclTool::viewerPcl(train_cat);
     pcl::PointCloud<pcl::PointNormal> normalll = PclTool::smoothAndNormalCal(train_cat);
