@@ -801,6 +801,15 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::ExtractConvexConcavePolygons(pcl::P
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_projected(new pcl::PointCloud<pcl::PointXYZ>);
 
+    // 先做一下直通滤波
+      // 建立过滤器消除杂散的NaN
+    pcl::PassThrough<pcl::PointXYZ> pass;
+    pass.setInputCloud(cloud);     // 设置输入点云
+    pass.setFilterFieldName("z");  // 设置分割字段为z坐标
+    pass.setFilterLimits(0, 1.1);  // 设置分割阀值为(0, 1.1)
+    pass.filter(*cloud_filtered);
+    std::cout << "PointCloud after filtering has: " << cloud_filtered->points.size() << " data points." << std::endl;
+
 
       // 分割
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
@@ -816,7 +825,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::ExtractConvexConcavePolygons(pcl::P
 
     seg.setInputCloud(cloud_filtered);
     seg.segment(*inliers, *coefficients);
-    std::cerr << "PointCloud after segmentation has: " << inliers->indices.size() << " inliers." << std::endl;
+    std::cout << "PointCloud after segmentation has: " << inliers->indices.size() << " inliers." << std::endl;
 
     // Project the model inliers点云投影滤波模型
     pcl::ProjectInliers<pcl::PointXYZ> proj;  // 点云投影滤波模型
@@ -825,7 +834,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::ExtractConvexConcavePolygons(pcl::P
     proj.setInputCloud(cloud_filtered);
     proj.setModelCoefficients(coefficients);  // 将估计得到的平面coefficients参数设置为投影平面模型系数
     proj.filter(*cloud_projected);            // 得到投影后的点云
-    std::cerr << "PointCloud after projection has: " << cloud_projected->points.size() << " data points." << std::endl;
+    std::cout << "PointCloud after projection has: " << cloud_projected->points.size() << " data points." << std::endl;
 
     // 存储提取多边形上的点云
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_hull(new pcl::PointCloud<pcl::PointXYZ>);
@@ -834,7 +843,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::ExtractConvexConcavePolygons(pcl::P
     chull.setAlpha(0.1);
     chull.reconstruct(*cloud_hull);  // 创建提取创建凹多边形
 
-    std::cerr << "Concave hull has: " << cloud_hull->points.size() << " data points." << std::endl;
+    std::cout << "Concave hull has: " << cloud_hull->points.size() << " data points." << std::endl;
     
     return cloud_hull;
 }
