@@ -30,6 +30,13 @@ int main()
     std::filesystem::path data_6(DEFAULT_DATA_DIR);
     data_6 += "/table_scene_mug_stereo_textured.pcd";
 
+    pcl::PointCloud<pcl::PointXYZ>::Ptr tuzi = PclTool::openPointCloudFile(data_1.string());
+    
+    pcl::PolygonMesh tuzimesh = PclTool::projectionTriangulation(tuzi);
+    PclTool::viewerPcl(tuzimesh);
+
+    return 0;
+    
     pcl::PointCloud<pcl::PointXYZ>::Ptr table_scene = PclTool::openPointCloudFile(data_6.string());
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr talble_hull = PclTool::ExtractConvexConcavePolygons(table_scene);
@@ -139,7 +146,7 @@ int main()
     return 0;
 
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr tuzi = PclTool::openPointCloudFile(data_1.string());
+
     pcl::PointCloud<pcl::PointXYZ>::Ptr passthfilter = PclTool::passThroughFilter(tuzi, "x", -0.05, 0.02,  false);
 
     PclTool::viewerPcl(passthfilter);

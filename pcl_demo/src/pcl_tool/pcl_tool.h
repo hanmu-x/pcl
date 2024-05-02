@@ -27,6 +27,7 @@ class PclTool
 
     static bool viewerPcl(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud);
     static bool viewerPcl(pcl::PointCloud<pcl::PointNormal> cloud_normals);
+    static bool viewerPcl(pcl::PolygonMesh& triangles);
 
     /// <summary>
     /// 打开点云数据文件(pcd,ply)文件
@@ -276,11 +277,18 @@ class PclTool
     /// <returns></returns>
     static pcl::PointCloud<pcl::PointXYZ>::Ptr ExtractConvexConcavePolygons(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
-        ////////////// tracking 跟踪 ///////////////
+    /// <summary>
+    /// 贪婪三角化
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <returns></returns>
+    static pcl::PolygonMesh projectionTriangulation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
-        ////////////// 深度图 ///////////////
+    ////////////// tracking 跟踪 ///////////////
 
-        PclTool();
+    ////////////// 深度图 ///////////////
+
+    PclTool();
     ~PclTool();
 
   private:
