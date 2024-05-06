@@ -32,6 +32,48 @@ int main()
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr tuzi = PclTool::openPointCloudFile(data_1.string());
     
+        // 平面分割
+    pcl::PointCloud<pcl::PointXYZ>::Ptr planeSeg_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+
+    // 填充点云
+    planeSeg_cloud->width = 15;
+    planeSeg_cloud->height = 1;
+    planeSeg_cloud->points.resize(planeSeg_cloud->width * planeSeg_cloud->height);
+
+    // 生成数据，采用随机数填充点云的x,y坐标，都处于z为1的平面上
+    for (size_t i = 0; i < planeSeg_cloud->points.size(); ++i)
+    {
+        planeSeg_cloud->points[i].x = 1024 * rand() / (RAND_MAX + 1.0f);
+        planeSeg_cloud->points[i].y = 1024 * rand() / (RAND_MAX + 1.0f);
+        planeSeg_cloud->points[i].z = 1.0;
+    }
+
+    // 设置几个局外点，即重新设置几个点的z值，使其偏离z为1的平面
+    planeSeg_cloud->points[0].z = 2.0;
+    planeSeg_cloud->points[3].z = -2.0;
+    planeSeg_cloud->points[6].z = 4.0;
+
+    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
+    pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
+
+    PclTool::planeSegmentation(planeSeg_cloud, coefficients, inliers);
+
+    if (inliers->indices.size() == 0)
+    {
+        std::cout << "Could not estimate a planar model for the given dataset." << std::endl;
+    }
+    // 打印出平面模型
+    std::cout << "Model coefficients: " << coefficients->values[0] << " " << coefficients->values[1] << " " << coefficients->values[2] << " " << coefficients->values[3] << std::endl;
+
+    std::cout << "Model inliers: " << inliers->indices.size() << std::endl;
+    for (size_t i = 0; i < inliers->indices.size(); ++i)
+    {
+        std::cout << inliers->indices[i] << "\t" << planeSeg_cloud->points[inliers->indices[i]].x << " " << planeSeg_cloud->points[inliers->indices[i]].y << " " << planeSeg_cloud->points[inliers->indices[i]].z << std::endl;
+    }
+    
+    return 0;
+
+    // 三角化
     pcl::PolygonMesh tuzimesh = PclTool::projectionTriangulation(tuzi);
     PclTool::viewerPcl(tuzimesh);
 

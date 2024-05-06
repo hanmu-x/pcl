@@ -11,8 +11,8 @@ pcl_demo 为封的pcl库,包含:
 5. kdtree的k近邻索引
 6. kdtree的半径近邻索引
 7. octree 体素近邻搜索
-8.  octree的k近邻索引
-9.  octree的半径近邻索引
+8. octree的k近邻索引
+9. octree的半径近邻索引
 10. 检测从beforCloud点云到afterCloud点云增加的点集
 11. 随机采样一致性算法
 12. 直通滤波
@@ -30,3 +30,4 @@ pcl_demo 为封的pcl库,包含:
 24. 多项式重构的平滑和法线估计
 25. 平面模型上提取凸（凹）多边形
 26. 贪婪三角化
+27.  平面分割

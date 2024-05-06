@@ -14,7 +14,7 @@
 #include <pcl/common/common_headers.h>
 #include <pcl/filters/voxel_grid.h>  // VoxelGrid滤波下采样
 #include <pcl/filters/statistical_outlier_removal.h>  // statisticalOutlierRemoval滤波器移除离群点
-#include <pcl/ModelCoefficients.h>        //模型系数头文件
+//#include <pcl/ModelCoefficients.h>        //模型系数头文件
 #include <pcl/filters/project_inliers.h>  //投影滤波类头文件
 #include <pcl/filters/extract_indices.h>  // 从一个点云中提取索引
 #include <pcl/segmentation/sac_segmentation.h>
@@ -926,7 +926,39 @@ pcl::PolygonMesh PclTool::projectionTriangulation(pcl::PointCloud<pcl::PointXYZ>
 }
 
 
+bool PclTool::planeSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::ModelCoefficients::Ptr coefficients, pcl::PointIndices::Ptr inliers)
+{
+    std::cout << "Point cloud data: " << cloud->points.size() << " points" << std::endl;
 
+
+    // 创建分割时所需要的模型系数对象，coefficients及存储内点的点索引集合对象inliers
+    // pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
+    // pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
+    // pcl::ModelCoefficients用于存储平面模型的系数（A、B、C和D）。
+    // Model coefficients: 0 0 1 -1：平面模型的系数表示为[A, B, C, D]，其中A、B、C表示平面的法向量，D表示平面到原点的距离。在这里，系数为[0, 0, 1, -1]，表示平面的法向量在Z轴上，距离原点的距离为1，即平面方程为Z=1。
+    // 而pcl::PointIndices用于存储内点的索引
+
+
+    // 创建分割对象
+    pcl::SACSegmentation<pcl::PointXYZ> seg;
+    // 可选择配置，设置模型系数需要优化
+    seg.setOptimizeCoefficients(true);
+    // 必要的配置，设置分割的模型类型，所用的随机参数估计方法，距离阀值，输入点云
+    seg.setModelType(pcl::SACMODEL_PLANE);  // 设置模型类型
+    seg.setMethodType(pcl::SAC_RANSAC);     // 设置随机采样一致性方法类型
+    seg.setDistanceThreshold(0.01);         // 设定距离阀值，距离阀值决定了点被认为是局内点是必须满足的条件
+                                     // 表示点到估计模型的距离最大值，
+
+    seg.setInputCloud(cloud);
+    // 引发分割实现，存储分割结果到点几何inliers及存储平面模型的系数coefficients
+    seg.segment(*inliers, *coefficients);
+    if (inliers->indices.size() == 0)
+    {
+        std::cout << "Could not estimate a planar model for the given dataset." << std::endl;
+        return false;
+    }
+    return true;
+}
 
 
 

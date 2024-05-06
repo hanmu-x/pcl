@@ -7,6 +7,8 @@
 #include <pcl/point_types.h>  //点数据类型
 #include <pcl/PCLPointCloud2.h>
 #include <pcl/filters/conditional_removal.h>  // ConditionalRemoval 移除离群点
+#include <pcl/ModelCoefficients.h>            //模型系数头文件
+
 
 class PclTool
 {
@@ -282,6 +284,19 @@ class PclTool
     /// <param name="cloud"></param>
     /// <returns></returns>
     static pcl::PolygonMesh projectionTriangulation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
+
+    /// <summary>
+    /// 平面分割
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <param name="coefficients">存储平面模型的系数（A、B、C和D）,[0, 0, 1, -1]，表示平面的法向量在Z轴上，距离原点的距离为1</param>
+    /// <param name="inliers">存储内点的索引</param>
+    /// <returns></returns>
+    static bool planeSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::ModelCoefficients::Ptr coefficients, pcl::PointIndices::Ptr inliers);
+
+
+
+
 
     ////////////// tracking 跟踪 ///////////////
 
