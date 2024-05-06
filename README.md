@@ -2,8 +2,6 @@
 
 ## plc_node
 
-plc_node 目录下的是笔记
-
 pcl_demo 为封的pcl库,包含:
 
 1. 打开点云文件
