@@ -24,7 +24,6 @@ class PclTool
     /// <param name="cloud"></param>
     /// <returns></returns>
     static bool viewerPcl(pcl::PCLPointCloud2::Ptr cloud);
-
     static bool viewerPcl(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud);
     static bool viewerPcl(pcl::PointCloud<pcl::PointNormal> cloud_normals);
     static bool viewerPcl(pcl::PolygonMesh& triangles);
@@ -59,7 +58,7 @@ class PclTool
     static bool openPcd(std::string pcdFile);
 
     /// <summary>
-    /// 赋值一个点云文件到另一个点云文件中
+    /// 复制一个点云文件到另一个点云文件中
     /// </summary>
     /// <param name="fromPcd"></param>
     /// <param name="toPcd"></param>

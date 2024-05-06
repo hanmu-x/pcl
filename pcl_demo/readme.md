@@ -1,10 +1,9 @@
-# pcl
 
-## plc_node
+# PLC库学习
 
-plc_node 目录下的是笔记
+pcl版本: 1.13.0
 
-pcl_demo 为封的pcl库,包含:
+包含
 
 1. 打开点云文件
 2. 可视化点云:pcl::PCLPointCloud2::Ptr,pcl::PointCloud<pcl::PointXYZI>::Ptr,pcl::PointCloud<pcl::PointNormal>
