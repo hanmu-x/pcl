@@ -304,6 +304,11 @@ class PclTool
     /// <returns></returns>
     static bool cylindricalSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered, pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_cylinder, double radius_min, double radius_max, double distance_threshold);
 
+    /// <summary>
+    /// 欧式聚类提取
+    /// </summary>
+    static std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> euclideanClustering(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud);
+
     ////////////// tracking 跟踪 ///////////////
 
     ////////////// 深度图 ///////////////

@@ -30,6 +30,18 @@ int main()
     std::filesystem::path data_6(DEFAULT_DATA_DIR);
     data_6 += "/table_scene_mug_stereo_textured.pcd";
 
+    pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclTool::openPointCloudFile(data_3.string());
+
+    // 欧式聚类
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> vec_table = PclTool::euclideanClustering(table_cloud);
+
+    for (const auto& once : vec_table)
+    {
+        PclTool::viewerPcl(once);
+    }
+
+    return 0;
+
     pcl::PointCloud<pcl::PointXYZ>::Ptr table_scene = PclTool::openPointCloudFile(data_6.string());
     // 圆柱分隔
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cylinder(new pcl::PointCloud<pcl::PointXYZ>);
@@ -112,7 +124,6 @@ int main()
 
     return 0;
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclTool::openPointCloudFile(data_3.string());
     // 待查看----------------------------------
     //pcl::PointCloud<pcl::Normal>::Ptr normal_intergra = PclTool::integralNormalCalculation(table_cloud, 0.02f, 10.0f);
 
