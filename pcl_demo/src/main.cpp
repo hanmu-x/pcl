@@ -30,9 +30,28 @@ int main()
     std::filesystem::path data_6(DEFAULT_DATA_DIR);
     data_6 += "/table_scene_mug_stereo_textured.pcd";
 
+    pcl::PointCloud<pcl::PointXYZ>::Ptr table_scene = PclTool::openPointCloudFile(data_6.string());
+    // 圆柱分隔
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cylinder(new pcl::PointCloud<pcl::PointXYZ>);
+    PclTool::cylindricalSegmentation(table_scene, cloud_cylinder, 0, 0.1, 0.05);
+    if (!cloud_cylinder->points.empty())
+    {
+        PclTool::viewerPcl(cloud_cylinder);
+    }
+    else
+    {
+        std::cerr << "Can't find the cylindrical component." << std::endl;
+    }
+
+
+    return 0;
+
     pcl::PointCloud<pcl::PointXYZ>::Ptr tuzi = PclTool::openPointCloudFile(data_1.string());
+
     
-        // 平面分割
+
+
+    // 平面分割
     pcl::PointCloud<pcl::PointXYZ>::Ptr planeSeg_cloud(new pcl::PointCloud<pcl::PointXYZ>);
 
     // 填充点云
@@ -79,7 +98,7 @@ int main()
 
     return 0;
     
-    pcl::PointCloud<pcl::PointXYZ>::Ptr table_scene = PclTool::openPointCloudFile(data_6.string());
+
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr talble_hull = PclTool::ExtractConvexConcavePolygons(table_scene);
     PclTool::viewerPcl(talble_hull);

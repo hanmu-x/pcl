@@ -9,7 +9,6 @@
 #include <pcl/filters/conditional_removal.h>  // ConditionalRemoval 移除离群点
 #include <pcl/ModelCoefficients.h>            //模型系数头文件
 
-
 class PclTool
 {
   public:
@@ -294,9 +293,16 @@ class PclTool
     /// <returns></returns>
     static bool planeSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::ModelCoefficients::Ptr coefficients, pcl::PointIndices::Ptr inliers);
 
-
-
-
+    /// <summary>
+    /// 圆柱体模型的分割
+    /// </summary>
+    /// <param name="cloud_filtered"></param>
+    /// <param name="cloud_cylinder"></param>
+    /// <param name="radius_min"></param>
+    /// <param name="radius_max"></param>
+    /// <param name="distance_threshold"></param>
+    /// <returns></returns>
+    static bool cylindricalSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered, pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_cylinder, double radius_min, double radius_max, double distance_threshold);
 
     ////////////// tracking 跟踪 ///////////////
 

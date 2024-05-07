@@ -961,7 +961,55 @@ bool PclTool::planeSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::
 }
 
 
+bool PclTool::cylindricalSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered,
+                     pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_cylinder,
+                     double radius_min,
+                     double radius_max,
+                     double distance_threshold)
+{
+    pcl::SACSegmentationFromNormals<pcl::PointXYZ, pcl::Normal> seg;
+    pcl::ExtractIndices<pcl::PointXYZ> extract;
+    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
 
+    pcl::ModelCoefficients::Ptr coefficients_cylinder(new pcl::ModelCoefficients);
+    pcl::PointIndices::Ptr inliers_cylinder(new pcl::PointIndices);
+    pcl::PointCloud<pcl::Normal>::Ptr cloud_normals(new pcl::PointCloud<pcl::Normal>);
+    pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;  // 法线估计对象
+
+    // 过滤后的点云进行法线估计，为后续进行基于法线的分割准备数据
+    ne.setSearchMethod(tree);
+    ne.setInputCloud(cloud_filtered);
+    ne.setKSearch(50);
+    ne.compute(*cloud_normals);
+
+    seg.setOptimizeCoefficients(true);
+    seg.setModelType(pcl::SACMODEL_CYLINDER);
+    seg.setNormalDistanceWeight(0.1);
+    seg.setMethodType(pcl::SAC_RANSAC);
+    seg.setMaxIterations(10000);
+    seg.setDistanceThreshold(distance_threshold);
+    seg.setRadiusLimits(radius_min, radius_max);
+    seg.setInputCloud(cloud_filtered);
+    seg.setInputNormals(cloud_normals);
+    //seg.setSearchMethod(tree);
+
+    seg.segment(*inliers_cylinder, *coefficients_cylinder);
+
+    if (inliers_cylinder->indices.empty())
+    {
+        printf("Cylinder segmentation failed! No inliers found.\n");
+        return false;
+    }
+    else
+    {
+        extract.setInputCloud(cloud_filtered);
+        extract.setIndices(inliers_cylinder);
+        extract.setNegative(false);
+        extract.filter(*cloud_cylinder);
+        printf("PointCloud representing the cylindrical component: %lu data points.\n", cloud_cylinder->points.size());
+        return true;
+    }
+}
 
 
 
