@@ -86,7 +86,7 @@ class PclTool
     ////////////////// kdtree /////////////////
 
     /// <summary>
-    /// kdtree的k近邻索引
+    /// kdtree的k近邻索引(搜索出searchPoint点最近的Kdian)
     /// </summary>
     /// <param name="cloud">需要所有的点云</param>
     /// <param name="searchPoint">需要索引的点</param>
