@@ -169,7 +169,7 @@ class PclTool
     /// VoxelGrid滤波下采样
     /// </summary>
     /// <param name="cloud">需要滤波的点云</param>
-    /// <param name="lx">三维体素栅格的x</param>
+    /// <param name="lx">x轴的稀疏度,在这个范围内的x会被合成一个点</param>
     /// <param name="ly">三维体素栅格的y</param>
     /// <param name="lz">三维体素栅格的z</param>
     /// <returns></returns>
@@ -179,8 +179,8 @@ class PclTool
     /// 使用statisticalOutlierRemoval滤波器移除离群点
     /// </summary>
     /// <param name="cloud">被过滤的点云</param>
-    /// <param name="meank"></param>
-    /// <param name="threshold"></param>
+    /// <param name="meank">统计周围离近点判断是否为离群点</param>
+    /// <param name="threshold">判断是否为离群点的阈值</param>
     /// <param name="Inversion">是否对结果取反,false:删除离群点,true:保留离群点</param>
     /// <returns></returns>
     static pcl::PointCloud<pcl::PointXYZ>::Ptr statisticalOutlierRemovalFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int meank, double threshold, bool Inversion = false);
@@ -197,7 +197,7 @@ class PclTool
     static pcl::PointCloud<pcl::PointXYZ>::Ptr cloudProjection(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float x, float y, float z, float c);
 
     /// <summary>
-    /// 点云的提取
+    /// 点云的平面提取
     /// </summary>
     /// <param name="cloud"></param>
     /// <returns></returns>
