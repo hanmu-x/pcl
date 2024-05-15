@@ -18,12 +18,12 @@ pcl版本: 1.13.0
 11. 随机采样一致性算法
 12. 直通滤波
 13. VoxelGrid滤波下采样
-14. 使用statisticalOutlierRemoval滤波器移除离群点
-15. 参数化模型投影点云
-16. 点云的提取
-17. RadiusOutlinerRemoval 移除离群点
-18. ConditionalRemoval 移除离群点
-19. 双边滤波
+14. statisticalOutlierRemoval滤波器移除离群点
+15. RadiusOutlinerRemoval 移除离群点
+16. ConditionalRemoval 移除离群点
+17. 双边滤波
+18. 参数化模型投影点云
+19. 点云的提取
 20. 法线估算
 21. 指定索引的法线估算
 22. 积分图法线估计
@@ -34,5 +34,6 @@ pcl版本: 1.13.0
 27. 平面分割
 28. 圆柱体模型的分割(可能存在问题)
 29. 欧式聚类提取
+30. 
 
 

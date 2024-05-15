@@ -537,87 +537,6 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::statisticalOutlierRemovalFilter(pcl
     return cloud_filtered;
 }
 
-pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::cloudProjection(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float x, float y, float z, float c)
-{
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_projected(new pcl::PointCloud<pcl::PointXYZ>);
-
-    // 填充 ModelCoefficients 的值,使用ax+by+cz+d=0平面模型，其中 a=b=d=0,c=1 也就是X——Y平面
-    // 定义模型系数对象，并填充对应的数据
-    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
-    coefficients->values.resize(4);
-    coefficients->values[0] = x;
-    coefficients->values[1] = y;
-    coefficients->values[2] = z;
-    coefficients->values[3] = c;
-
-    // 创建 ProjectInliers 对象，使用ModelCoefficients作为投影对象的模型参数
-    pcl::ProjectInliers<pcl::PointXYZ> proj;  // 创建投影滤波对象
-    proj.setModelType(pcl::SACMODEL_PLANE);   // 设置对象对应的投影模型
-    proj.setInputCloud(cloud);                // 设置输入点云
-    proj.setModelCoefficients(coefficients);  // 设置模型对应的系数
-    proj.filter(*cloud_projected);            // 投影结果存储cloud_projected
-
-    return cloud_projected;
-}
-
-std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> PclTool::cloudExtraction(pcl::PCLPointCloud2::Ptr cloud)
-{
-    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> vecCloud;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_f(new pcl::PointCloud<pcl::PointXYZ>);
-
-    std::cout << "PointCloud before filtering: " << cloud->width * cloud->height << " data points." << std::endl;
-
-    // 先对点云做VoxelGrid滤波器对数据进行下采样，在这里进行下才样是为了加速处理过程
-    pcl::PCLPointCloud2::Ptr cloud_filtered_blob = voxelGridFilter(cloud, 0.1, 0.1, 0.1);
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
-    // 转换为模板点云
-    pcl::fromPCLPointCloud2(*cloud_filtered_blob, *cloud_filtered);
-
-    std::cout << "PointCloud after filtering: " << cloud_filtered->width * cloud_filtered->height << " data points." << std::endl;
-
-    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
-    pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
-
-    pcl::SACSegmentation<pcl::PointXYZ> seg;  // 创建分割对象
-    seg.setOptimizeCoefficients(true);        // 设置对估计模型参数进行优化处理
-    seg.setModelType(pcl::SACMODEL_PLANE);    // 设置分割模型类别
-    seg.setMethodType(pcl::SAC_RANSAC);       // 设置用哪个随机参数估计方法
-    seg.setMaxIterations(1000);               // 设置最大迭代次数
-    seg.setDistanceThreshold(0.01);           // 判断是否为模型内点的距离阀值
-
-    // 设置ExtractIndices的实际参数
-    pcl::ExtractIndices<pcl::PointXYZ> extract;  // 创建点云提取对象
-    int i = 0;
-    int nr_points = (int)cloud_filtered->points.size();  // 点云总数
-    for (int i = 0; cloud_filtered->points.size() > 0.3 * nr_points; i++)
-    {
-        // 为了处理点云包含的多个模型，在一个循环中执行该过程并在每次模型被提取后，保存剩余的点进行迭代
-        seg.setInputCloud(cloud_filtered);
-        seg.segment(*inliers, *coefficients);
-        if (inliers->indices.size() == 0)
-        {
-            // 无法估计给定数据集的平面模型。
-            std::cout << "Could not estimate a planar model for the given dataset." << std::endl;
-            break;
-        }
-        // 提取入口
-        pcl::PointCloud<pcl::PointXYZ>::Ptr temp_cloud(new pcl::PointCloud<pcl::PointXYZ>);
-        extract.setInputCloud(cloud_filtered);
-        extract.setIndices(inliers);
-        extract.setNegative(false);
-        extract.filter(*temp_cloud);
-        vecCloud.push_back(temp_cloud);
-        std::cout << "Extract the " << i << "point cloud : " << temp_cloud->width * temp_cloud->height << " data points." << std::endl;
-
-        // 创建筛选对象
-        extract.setNegative(true);
-        extract.filter(*cloud_f);
-        cloud_filtered.swap(cloud_f);
-    }
-
-    return vecCloud;
-}
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::RORemoval(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius, int minInRadius)
 {
@@ -633,7 +552,6 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::RORemoval(pcl::PointCloud<pcl::Poin
 
     return cloud_filtered;
 }
-
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::conditionRemoval(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::vector<pcl::FieldComparison<pcl::PointXYZ>::ConstPtr> comparisons)
 {
@@ -679,7 +597,8 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::conditionRemoval(pcl::PointCloud<pc
     return cloud_filtered;
 }
 
-pcl::PointCloud<pcl::PointXYZI>::Ptr PclTool::bilateralFilter(const pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const double standard_dev, const double halfSize)
+
+pcl::PointCloud<pcl::PointXYZI>::Ptr PclTool::bilateralFilter(const pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const double halfSize ,const double standard_dev)
 {
     pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZI>);
 
@@ -688,12 +607,99 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr PclTool::bilateralFilter(const pcl::PointCl
     pcl::BilateralFilter<pcl::PointXYZI> fbf;
     fbf.setInputCloud(cloud);
     fbf.setSearchMethod(tree);
-    fbf.setStdDev(standard_dev);  // 设置标准偏差
-    fbf.setHalfSize(halfSize);    // 高斯双边滤波器窗口的一半大小
+    fbf.setHalfSize(halfSize);    // 空间域参数
+    fbf.setStdDev(standard_dev);  // 值域参数
     fbf.filter(*cloud_filtered);
 
     return cloud_filtered;
 }
+
+
+pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::cloudProjection(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float x, float y, float z, float c)
+{
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_projected(new pcl::PointCloud<pcl::PointXYZ>);
+
+    // 填充 ModelCoefficients 的值,使用ax+by+cz+d=0平面模型，其中 a=b=d=0,c=1 也就是X——Y平面
+    // 定义模型系数对象，并填充对应的数据
+    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
+    coefficients->values.resize(4);
+    coefficients->values[0] = x;
+    coefficients->values[1] = y;
+    coefficients->values[2] = z;
+    coefficients->values[3] = c;
+
+    // 创建 ProjectInliers 对象，使用ModelCoefficients作为投影对象的模型参数
+    pcl::ProjectInliers<pcl::PointXYZ> proj;  // 创建投影滤波对象
+    proj.setModelType(pcl::SACMODEL_PLANE);   // 设置对象对应的投影模型
+    proj.setInputCloud(cloud);                // 设置输入点云
+    proj.setModelCoefficients(coefficients);  // 设置模型对应的系数
+    proj.filter(*cloud_projected);            // 投影结果存储cloud_projected
+
+    return cloud_projected;
+}
+
+std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> PclTool::cloudExtraction(pcl::PCLPointCloud2::Ptr cloud)
+{
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> vecCloud;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_f(new pcl::PointCloud<pcl::PointXYZ>);
+
+    std::cout << "PointCloud before filtering: " << cloud->width * cloud->height << " data points." << std::endl;
+
+    // 先对点云做VoxelGrid滤波器对数据进行下采样，在这里进行下才样是为了加速处理过程
+    pcl::PCLPointCloud2::Ptr cloud_filtered_blob = voxelGridFilter(cloud, 0.1, 0.1, 0.1);
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
+    // 转换为模板点云
+    pcl::fromPCLPointCloud2(*cloud_filtered_blob, *cloud_filtered);
+
+    std::cout << "PointCloud after filtering: " << cloud_filtered->width * cloud_filtered->height << " data points." << std::endl;
+
+    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
+    pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
+
+    // 创建分割对象 (pcl::SACSegmentation进行随机采样一致性（RANSAC）平面分割)
+    pcl::SACSegmentation<pcl::PointXYZ> seg;
+    seg.setOptimizeCoefficients(true);        // 设置对估计模型参数进行优化处理
+    seg.setModelType(pcl::SACMODEL_PLANE);    // 设置分割模型类别
+    seg.setMethodType(pcl::SAC_RANSAC);       // 设置用哪个随机参数估计方法
+    seg.setMaxIterations(1000);               // 设置最大迭代次数
+    seg.setDistanceThreshold(0.01);           // 判断是否为模型内点的距离阀值
+
+    // 设置ExtractIndices的实际参数
+    pcl::ExtractIndices<pcl::PointXYZ> extract;  // 创建点云提取对象
+    int i = 0;
+    int nr_points = (int)cloud_filtered->points.size();  // 点云总数
+    for (int i = 0; cloud_filtered->points.size() > 0.3 * nr_points; i++)
+    {
+        // 为了处理点云包含的多个模型，在一个循环中执行该过程并在每次模型被提取后，保存剩余的点进行迭代
+        seg.setInputCloud(cloud_filtered);
+        // 执行分割，找到一个最佳拟合平面模型，并将内点索引存入*inliers，模型参数存入*coefficients
+        seg.segment(*inliers, *coefficients);
+        if (inliers->indices.size() == 0)
+        {
+            // 如果inliers->indices.size() 为0，说明没有找到合适的平面模型，此时跳出循环。
+            std::cout << "Could not estimate a planar model for the given dataset." << std::endl;
+            break;
+        }
+        // 提取入口 利用 extract 根据inliers提取出当前平面的点云
+        pcl::PointCloud<pcl::PointXYZ>::Ptr temp_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+        extract.setInputCloud(cloud_filtered);
+        extract.setIndices(inliers);
+        extract.setNegative(false);
+        extract.filter(*temp_cloud);
+        vecCloud.push_back(temp_cloud);
+        std::cout << "Extract the " << i << "point cloud : " << temp_cloud->width * temp_cloud->height << " data points." << std::endl;
+
+        // 创建筛选对象
+        // 设置setNegative(true) 来从cloud_filtered中移除刚刚提取出的平面点云的点，保留剩下的点云数据准备下一轮分割。
+        extract.setNegative(true);
+        extract.filter(*cloud_f);
+        cloud_filtered.swap(cloud_f);  // 将剩下的点云数据赋回给cloud_filtered
+    }
+
+    return vecCloud;
+}
+
 
 pcl::PointCloud<pcl::Normal>::Ptr PclTool::normalCalculation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius)
 {

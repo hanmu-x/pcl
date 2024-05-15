@@ -186,6 +186,34 @@ class PclTool
     static pcl::PointCloud<pcl::PointXYZ>::Ptr statisticalOutlierRemovalFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int meank, double threshold, bool Inversion = false);
 
     /// <summary>
+    /// RadiusOutlinerRemoval 移除离群点
+    /// 删除在输入点云一定范围内没有达到足够多近邻的所有数据点
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <param name="radius">设置半径的范围内找临近点</param>
+    /// <param name="minInRadius">设置查询点的邻域点集数小于minInRadius的删除</param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::PointXYZ>::Ptr RORemoval(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius, int minInRadius);
+
+    /// <summary>
+    /// ConditionalRemoval 移除离群点
+    /// 可以一次删除满足对输入的点云设定的一个或多个条件指标的所有的数据
+    /// </summary>
+    /// <param name="cloud">点云</param>
+    /// <param name="comparisons">筛选条件</param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::PointXYZ>::Ptr conditionRemoval(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::vector<pcl::FieldComparison<pcl::PointXYZ>::ConstPtr> comparisons);
+
+    /// <summary>
+    /// 双边滤波
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <param name="halfSize">高斯双边滤波器窗口的一半大小</param>
+    /// <param name="standard_dev">设置标准偏差</param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::PointXYZI>::Ptr bilateralFilter(const pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const double halfSize, const double standard_dev);
+
+    /// <summary>
     /// 参数化模型投影点云
     /// </summary>
     /// <param name="cloud">点云</param>
@@ -197,37 +225,11 @@ class PclTool
     static pcl::PointCloud<pcl::PointXYZ>::Ptr cloudProjection(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float x, float y, float z, float c);
 
     /// <summary>
-    /// 点云的平面提取
+    /// 点云的平面提取(提取多个平面)
     /// </summary>
     /// <param name="cloud"></param>
     /// <returns></returns>
     static std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloudExtraction(pcl::PCLPointCloud2::Ptr cloud);
-
-    /// <summary>
-    /// RadiusOutlinerRemoval 移除离群点
-    /// </summary>
-    /// <param name="cloud"></param>
-    /// <param name="radius">设置半径的范围内找临近点</param>
-    /// <param name="minInRadius">设置查询点的邻域点集数小于minInRadius的删除</param>
-    /// <returns></returns>
-    static pcl::PointCloud<pcl::PointXYZ>::Ptr RORemoval(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius, int minInRadius);
-
-    /// <summary>
-    /// ConditionalRemoval 移除离群点
-    /// </summary>
-    /// <param name="cloud">点云</param>
-    /// <param name="comparisons">筛选条件</param>
-    /// <returns></returns>
-    static pcl::PointCloud<pcl::PointXYZ>::Ptr conditionRemoval(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::vector<pcl::FieldComparison<pcl::PointXYZ>::ConstPtr> comparisons);
-
-    /// <summary>
-    /// 双边滤波
-    /// </summary>
-    /// <param name="cloud"></param>
-    /// <param name="standard_dev">设置标准偏差</param>
-    /// <param name="halfSize">高斯双边滤波器窗口的一半大小</param>
-    /// <returns></returns>
-    static pcl::PointCloud<pcl::PointXYZI>::Ptr bilateralFilter(const pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const double standard_dev, const double halfSize);
 
     /// <summary>
     /// 法线估算

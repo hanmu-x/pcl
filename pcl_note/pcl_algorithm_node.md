@@ -147,6 +147,17 @@ sor.setLeafSize(lx, ly, lz);
 
 ## statisticalOutlierRemoval滤波器移除离群点
 
+StatisticalOutlierRemoval滤波器，主要用于从点云数据中识别并移除离群点。这些离群点可能是由于传感器噪声、环境干扰或是数据采集错误等原因造成的，它们通常不符合点云数据的整体分布规律，对于后续的点云分析（如表面重建、特征提取等）可能产生不利影响。
+
+工作原理
+
+    统计分析：对于点云中的每一个点，滤波器首先计算它到其邻近点的平均距离。这个邻近点的选取可以基于设定的邻域半径或者直接指定的邻域点数。
+
+    假设分布：基于计算出的所有点到其邻域点的距离，假定这些距离服从高斯分布（正态分布）。在实际应用中，这意味着点云中大部分点到其邻域点的平均距离应该集中在某个均值附近，并且围绕这个均值的偏差（标准差）是有限的。
+
+    阈值判断：根据高斯分布的特性，滤波器会计算出一个距离阈值，这个阈值通常是基于均值和标准差的倍数（例如，标准差的2-3倍）来确定。任何点到其邻域点的平均距离如果超出了这个阈值，则会被视为离群点。
+
+
 
 ```cpp
 pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;  // 创建滤波器对象
@@ -158,7 +169,6 @@ sor.setNegative(inversion);         // 是否对结果取反,false:删除离群�
 sor.filter(*cloud_filtered);        // 存储
 ```
 
-
 1.meank 参数：
     meank 是一个整数参数，表示在进行统计时考虑的查询点的临近点数。
     统计滤波器对每个点周围的临近点进行统计计算，以判断该点是否为离群点。meank 决定了用于计算统计信息的邻近点的数量。较大的 meank 值会考虑更多的邻近点，从而更准确地计算统计信息。
@@ -169,6 +179,113 @@ sor.filter(*cloud_filtered);        // 存储
 
 3.inversion 参数：
     inversion 是一个布尔类型的参数，表示是否对滤波结果进行反转。如果设置为 false，则删除被判断为离群点的点；如果设置为 true，则保留被判断为离群点的点，而删除其余点。
+
+
+
+## RadiusOutlinerRemoval 移除离群点
+
+RadiusOutlinerRemoval滤波器，它可以删除在输入点云一定范围内没有达到足够多近邻的所有数据点。
+
+```cpp
+pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
+pcl::RadiusOutlierRemoval<pcl::PointXYZ> outrem;  // 创建滤波器
+
+outrem.setInputCloud(cloud);                  // 设置输入点云
+outrem.setRadiusSearch(radius);               // 设置半径为~的范围内找临近点
+outrem.setMinNeighborsInRadius(minInRadius);  // 设置查询点的邻域点集数小于~的删除
+outrem.filter(*cloud_filtered);  // 执行条件滤波   在半径为radius 在此半径内必须要有minInRadius个邻居点，此点才会保存
+
+```
+
+## ConditionalRemoval 移除离群点
+
+ConditionalRemoval滤波器，可以一次删除满足对输入的点云设定的一个或多个条件指标的所有的数据
+
+
+```cpp
+pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
+pcl::ConditionAnd<pcl::PointXYZ>::Ptr range_cond(new pcl::ConditionAnd<pcl::PointXYZ>());  // 创建条件定义对象
+
+// ------------------添加条件------------------
+pcl::FieldComparison<pcl::PointXYZ>::ConstPtr comp1(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, 0.0));     // 添加在Z字段上大于0的比较算子
+pcl::FieldComparison<pcl::PointXYZ>::ConstPtr comp2(new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::LT, 0.8));     // 添加在Z字段上小于0.8的比较算子
+range_cond->addComparison(comp1);
+range_cond->addComparison(comp2);
+// ------------------添加条件------------------
+
+
+// 创建滤波器并用条件定义对象初始化
+pcl::ConditionalRemoval<pcl::PointXYZ> condrem;
+condrem.setCondition(range_cond);
+condrem.setInputCloud(cloud);    // 输入点云
+condrem.setKeepOrganized(true);  // 设置保持点云的结构
+// 执行滤波
+condrem.filter(*cloud_filtered);
+```
+
+// 添加在Z字段上大于0的比较算子
+// GT greater than
+// EQ equal
+// LT less than
+// GE greater than or equal
+// LE less than  or equal 小于等于
+
+
+## 双边滤波
+
+双边滤波算法，是通过取邻近采样点的加权平均来修正当前采样点的位置，从而达到滤波效果。同时也会有选择地剔除部分与当前采样点“差异”太大的相邻采样点，从而达到保持原特征的目的。
+
+双边滤波的核心概念仍然围绕着两个关键参数：空间域参数和值域参数。
+空间域参数保证了邻近点的考虑范围，值域参数则确保了只有属性值相近的点才施加较大的影响，这样就能在平滑和保持细节之间找到一个良好的平衡
+
+1. 空间域参数
+
+空间域参数通常是指滤波时考虑的邻域大小或范围，它直接影响滤波在空间上的平滑程度。在PCL中，这个参数可能直接体现在滤波器设置的半径或邻域尺寸上，例如，通过setHalfSize方法设置的半径大小。具体来说：
+
+    半径（Half Size）：定义了每个点周围考虑邻域的范围。在双边滤波中，这意味着滤波器会在每个点周围的球形区域内查找邻近点，这个球的半径就是由这个参数决定的。较大的半径会导致更广泛的邻域参与计算，使得滤波后的结果更加平滑，但同时也可能导致更多的边缘信息损失；较小的半径则相反，保持了更多的细节，但可能不足以去除所有噪声。
+
+2. 值域参数
+
+值域参数关注的是点云中点的属性值差异，最常见的是点的强度值。这个参数控制着滤波器在考虑点的相似性时的宽容度，即在属性值上多大差异的点被认为是相似的，可以相互影响：
+
+    灰度阈值（StddevMulThresh 或 SigmaSqr）：这个参数决定了在值域中多少差异被认为是重要的。通常，它是标准差的倍数，用来衡量点云中强度值的波动程度。较高的值意味着滤波器对强度差异更加不敏感，即使强度变化较大，点之间的影响权重依然较高，这有助于在保持颜色或强度一致性的区域中进行平滑；而较低的值则使得滤波器对强度变化更加敏感，有助于在强度变化明显的边界区域保持锐利。
+
+
+
+```cpp
+pcl::PointCloud<pcl::PointXYZI>::Ptr PclTool::bilateralFilter(const pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const double standard_dev, const double halfSize)
+{
+    pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZI>);
+
+    pcl::search::KdTree<pcl::PointXYZI>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZI>);
+    // 创建了一个双边滤波器对象 fbf, 指定了点云中每个点的类型pcl::PointXYZI
+    pcl::BilateralFilter<pcl::PointXYZI> fbf;
+    fbf.setInputCloud(cloud);
+    fbf.setSearchMethod(tree);
+    fbf.setHalfSize(halfSize);    // 空间域参数
+    fbf.setStdDev(standard_dev);  // 值域参数
+    fbf.filter(*cloud_filtered);
+
+    return cloud_filtered;
+}
+```
+
+### 1. `fbf.setHalfSize(halfSize);`
+
+`halfSize`
+- 此参数通常指定了滤波处理时考虑的邻域空间范围的半径大小。在三维点云处理中，它定义了一个以每个点为中心的立方体或球体邻域的半边长或半径。
+  - 参数值越大,意味着更大的邻域，更多的邻近点将参与到滤波计算中，这有助于去除噪声，但也可能抹去更多细节和边缘信息。
+  - 参数值越小,会限制影响范围，保留更多局部细节，但可能不足以平滑掉所有的噪声点。这个参数直接影响滤波器的空间局部性，是控制平滑程度和边缘保持的关键。
+
+综上所述，`setStdDev`和`setHalfSize`这两个方法共同决定了滤波器如何在空间维度和属性值维度上平衡平滑度与细节保留，是调节滤波效果的重要手段。
+
+### 2. `fbf.setStdDev(standard_dev);`
+
+`standard_dev`
+- 这个参数代表了在值域（或强度域、范围域）中的标准差乘数阈值。在滤波器中，它用来控制点云中点的属性值（如强度或颜色）差异的容忍度。换句话说，它决定了在计算点的贡献权重时，其属性值与中心点的差异达到多少时开始显著减小权重。
+    - 参数值越大意味着滤波器对更大范围的属性值差异接受度更高，允许更多差异较大的点影响中心点的滤波结果，这可能导致更平滑的输出但可能模糊某些细节。
+    - 参数值越较小的值会让滤波器对属性值的变化更加敏感，有助于保持边缘清晰。
+
 
 
 
@@ -191,6 +308,7 @@ sor.filter(*cloud_filtered);        // 存储
     proj.setModelCoefficients(coefficients);  // 设置模型对应的系数
     proj.filter(*cloud_projected);            // 投影结果存储cloud_projected
 ```
+
 
 
 
