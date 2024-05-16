@@ -383,8 +383,7 @@ return vecCloud;
 
 
 
-## 点云发现估计
-
+## 点云法线估计
 
 ```cpp
 pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
@@ -407,8 +406,6 @@ ne.compute(*cloud_normals);
 
 ### 函数功能介绍：
 
-
-
 1. **法线估计器创建**：
    - 使用`pcl::NormalEstimation`类创建一个法线估计器对象`ne`，该对象负责计算点云中每个点的法线。
 
@@ -426,6 +423,27 @@ ne.compute(*cloud_normals);
 
 5. **返回结果**：
    - 函数最后返回计算得到的法线云`cloud_normals`。
+
+
+
+## 积分图法线估计
+
+
+```cpp
+// 创建法线估计向量
+pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
+pcl::IntegralImageNormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
+ne.setNormalEstimationMethod(ne.AVERAGE_3D_GRADIENT);  // 设置法线估计的方式AVERAGE_3D_GRADIENT
+ne.setMaxDepthChangeFactor(depth_factor);   // 设置深度变化系数
+ne.setNormalSmoothingSize(smooth_size);     // 设置法线优化时考虑的邻域的大小
+ne.setInputCloud(cloud);                    // 输入的点云
+ne.compute(*normals);                       // 计算法线
+```
+
+- 三种法线估计方法
+  - `AVERAGE_3D_GRADIENT` 模式创建6个积分图来计算水平方向和垂直方向的平滑后的三维梯度并使用两个梯度间的向量积计算法线
+  - `COVARIANCE_MATRIX` 模式从具体某个点的局部邻域的协方差矩阵创建9个积分，来计算这个点的法线
+  - `AVERAGE_DEPTH_CHANGE` 模式只创建了一个单一的积分图，从而平局深度变化计算法线
 
 
 

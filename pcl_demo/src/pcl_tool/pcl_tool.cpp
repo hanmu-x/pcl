@@ -747,12 +747,13 @@ pcl::PointCloud<pcl::Normal>::Ptr PclTool::integralNormalCalculation(pcl::PointC
 {
     // 创建法线估计向量
     pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
+    // 这个类利用积分图技术高效地计算点云中各点的法线。
     pcl::IntegralImageNormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
     /************************************************************************
     三种法线估计方法
      COVARIANCE_MATRIX 模式从具体某个点的局部邻域的协方差矩阵创建9个积分，来计算这个点的法线
      AVERAGE_3D_GRADIENT   模式创建6个积分图来计算水平方向和垂直方向的平滑后的三维梯度并使用两个梯度间的向量积计算法线
-     AVERAGE_DEPTH——CHANGE  模式只创建了一个单一的积分图，从而平局深度变化计算法线
+     AVERAGE_DEPTH_CHANGE  模式只创建了一个单一的积分图，从而平局深度变化计算法线
     *****************************************************************************/
     ne.setNormalEstimationMethod(ne.AVERAGE_3D_GRADIENT);  // 设置法线估计的方式AVERAGE_3D_GRADIENT
 
