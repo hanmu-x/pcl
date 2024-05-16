@@ -83,6 +83,8 @@ class PclTool
     ///// <returns></returns>
     // static bool link(std::string fpcd, std::string spcd);
 
+    ////////////////////////////////// filters(滤波器) //////////////////////////////////
+
     ////////////////// kdtree /////////////////
 
     /// <summary>
@@ -230,6 +232,10 @@ class PclTool
     /// <param name="cloud"></param>
     /// <returns></returns>
     static std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloudExtraction(pcl::PCLPointCloud2::Ptr cloud);
+
+
+    ////////////////////////////////// features(特征) //////////////////////////////////
+
 
     /// <summary>
     /// 法线估算
