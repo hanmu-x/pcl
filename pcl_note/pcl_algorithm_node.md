@@ -310,6 +310,123 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr PclTool::bilateralFilter(const pcl::PointCl
 ```
 
 
+## 点云平面提取
+
+
+```cpp
+// 线对原始点云做 VoxelGrid滤波下采样,方便后面的计算
+pcl::PCLPointCloud2::Ptr cloud 下采样->pcl::PCLPointCloud2::Ptr cloud_filtered_blob
+// 数据类型转化
+pcl::PCLPointCloud2::Ptr cloud_filtered_blob -> pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered
+
+pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
+pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
+// 创建分割对象 (pcl::SACSegmentation进行随机采样一致性（RANSAC）平面分割)
+pcl::SACSegmentation<pcl::PointXYZ> seg;
+seg.setOptimizeCoefficients(true);        // 设置对估计模型参数进行优化处理
+seg.setModelType(pcl::SACMODEL_PLANE);    // 设置分割模型类别
+seg.setMethodType(pcl::SAC_RANSAC);       // 设置用哪个随机参数估计方法
+seg.setMaxIterations(1000);               // 设置最大迭代次数
+seg.setDistanceThreshold(0.01);           // 判断是否为模型内点的距离阀值
+
+// 设置ExtractIndices的实际参数
+pcl::ExtractIndices<pcl::PointXYZ> extract;  // 创建点云提取对象
+int i = 0;
+int nr_points = (int)cloud_filtered->points.size();  // 点云总数
+for (int i = 0; cloud_filtered->points.size() > 0.3 * nr_points; i++)
+{
+    // 为了处理点云包含的多个模型，在一个循环中执行该过程并在每次模型被提取后，保存剩余的点进行迭代
+    seg.setInputCloud(cloud_filtered);
+    // 执行分割，找到一个最佳拟合平面模型，并将内点索引存入*inliers，模型参数存入*coefficients
+    seg.segment(*inliers, *coefficients);
+    if (inliers->indices.size() == 0)
+    {
+        // 如果inliers->indices.size() 为0，说明没有找到合适的平面模型，此时跳出循环。
+        std::cout << "Could not estimate a planar model for the given dataset." << std::endl;
+        break;
+    }
+    // 提取入口 利用 extract 根据inliers提取出当前平面的点云
+    pcl::PointCloud<pcl::PointXYZ>::Ptr temp_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    extract.setInputCloud(cloud_filtered);
+    extract.setIndices(inliers);
+    extract.setNegative(false);
+    extract.filter(*temp_cloud);
+    vecCloud.push_back(temp_cloud);
+    std::cout << "Extract the " << i << "point cloud : " << temp_cloud->width * temp_cloud->height << " data points." << std::endl;
+
+    // 创建筛选对象
+    // 设置setNegative(true) 来从cloud_filtered中移除刚刚提取出的平面点云的点，保留剩下的点云数据准备下一轮分割。
+    extract.setNegative(true);
+    extract.filter(*cloud_f);
+    cloud_filtered.swap(cloud_f);  // 将剩下的点云数据赋回给cloud_filtered
+}
+
+return vecCloud;
+
+```
+
+这个函数`cloudExtraction`是用于从输入的点云数据中提取多个平面的。它主要通过以下步骤实现这一目标：
+
+
+1. **点云预处理**：
+   - 首先，对输入点云进行下采样，降低其密度。这一步通常是为了减少计算量和加快后续处理速度。
+   - 下采样后的点云转换为`pcl::PointCloud<pcl::PointXYZ>`格式，以便于后续处理。
+
+2. **平面分割**：
+   - 使用`pcl::SACSegmentation`类进行随机采样一致性（RANSAC）平面分割。该过程会迭代寻找最适合数据集的平面模型，并将符合该平面模型的点（即内点）的索引存储在`pcl::PointIndices`中，同时计算得到的平面模型参数存储在`pcl::ModelCoefficients`中。
+   - 分割前设置了一系列参数，包括优化系数、模型类型（平面）、RANSAC方法、最大迭代次数以及距离阈值，以确保高效且准确地识别平面。
+   - 通过一个循环持续分割，直到剩余点云的数量小于初始点云数量的70%（这里有个小错误，应该是`cloud_filtered->points.size() < 0.3 * nr_points`），每次循环都会从当前点云中分离出一个平面。
+
+3. **点云提取与存储**：
+   - 使用`pcl::ExtractIndices`类根据上一步得到的内点索引提取对应的平面点云，并将其添加到`vecCloud`向量中，用于存储所有提取到的平面点云。
+   - 在每次提取出一个平面后，通过将`setNegative(true)`，从当前的点云中移除已提取的平面点云，继续对剩余点云进行下一次分割，直到达到停止条件。
+
+
+
+## 点云发现估计
+
+
+```cpp
+pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
+
+pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
+ne.setInputCloud(cloud);
+
+// 基于给出的输入数据集，KdTree将被建立
+pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
+ne.setSearchMethod(tree);
+// 存储输出数据
+pcl::PointCloud<pcl::Normal>::Ptr cloud_normals(new pcl::PointCloud<pcl::Normal>);
+// 使用半径在查询点周围3厘米范围内的所有临近元素
+ne.setRadiusSearch(radius);  // 单位:米
+// 计算特征值
+ne.compute(*cloud_normals);
+```
+
+这个函数`normalCalculation`的作用是从给定的点云中计算每个点的法线向量，这对于后续的许多点云处理任务如曲面重建、特征描述、分割等都是非常重要的。以下是该函数的详细解释及分析：
+
+### 函数功能介绍：
+
+
+
+1. **法线估计器创建**：
+   - 使用`pcl::NormalEstimation`类创建一个法线估计器对象`ne`，该对象负责计算点云中每个点的法线。
+
+2. **输入点云设置**：
+   - 通过`ne.setInputCloud(cloud)`设置需要计算法线的输入点云。
+
+3. **构建KdTree**：
+   - 创建一个`pcl::search::KdTree<pcl::PointXYZ>`类型的搜索树对象`tree`，并将其作为搜索方法设置给法线估计器`ne`。KdTree是一种高效的近邻搜索算法，能够快速找到给定点周围的邻近点
+
+   - 初始化一个指向`pcl::PointCloud<pcl::Normal>`类型的智能指针`cloud_normals`，用于存储计算出的法线信息。
+   - 通过`ne.setRadiusSearch(radius)`设置邻域搜索的半径，即在计算每个点的法线时考虑的邻域范围。
+
+4. **计算法线**：
+   - 调用`ne.compute(*cloud_normals)`开始计算法线，并将结果存储在`cloud_normals`中。
+
+5. **返回结果**：
+   - 函数最后返回计算得到的法线云`cloud_normals`。
+
 
 
 
