@@ -122,6 +122,7 @@ bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud)
     return true;
 }
 
+
 bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointNormal> cloud_normals)
 {
     if (cloud_normals.empty())
@@ -130,23 +131,52 @@ bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointNormal> cloud_normals)
         return false;
     }
 
-    std::cout << "point size:" << cloud_normals.points.size() << std::endl;
-    std::cout << "height:" << cloud_normals.height << std::endl;
-    std::cout << "width:" << cloud_normals.width << std::endl;
+    std::cout << "Points in cloud_normals: " << cloud_normals.points.size() << std::endl;
 
     pcl::visualization::PCLVisualizer viewer("Cloud Viewer: Normals");
+    viewer.setBackgroundColor(0, 0, 0);  // 设置背景色为黑色，提高对比度
+    viewer.initCameraParameters();
+    viewer.setSize(800, 600);
 
-    // 将带有法线的点云可视化
-    viewer.addPointCloudNormals<pcl::PointNormal>(cloud_normals.makeShared());
+    //viewer.addPointCloud(cloud_normals.makeShared(), "cloud_normals");
+    //viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "cloud_normals");
+    //viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0, 0.0, 0.0, "cloud_normals");
+    viewer.addPointCloudNormals<pcl::PointNormal>(cloud_normals.makeShared(), 1, 0.05, "cloud_normals_normals");
 
     while (!viewer.wasStopped())
     {
-        viewer.spinOnce();
+        viewer.spinOnce(100);
     }
 
     std::cout << "End show " << std::endl;
     return true;
 }
+
+//bool PclTool::viewerPcl(pcl::PointCloud<pcl::PointNormal> cloud_normals)
+//{
+//    if (cloud_normals.empty())
+//    {
+//        std::cout << "The point cloud data is empty" << std::endl;
+//        return false;
+//    }
+//
+//    std::cout << "point size:" << cloud_normals.points.size() << std::endl;
+//    std::cout << "height:" << cloud_normals.height << std::endl;
+//    std::cout << "width:" << cloud_normals.width << std::endl;
+//
+//    pcl::visualization::PCLVisualizer viewer("Cloud Viewer: Normals");
+//
+//    // 将带有法线的点云可视化
+//    viewer.addPointCloudNormals<pcl::PointNormal>(cloud_normals.makeShared());
+//
+//    while (!viewer.wasStopped())
+//    {
+//        viewer.spinOnce();
+//    }
+//
+//    std::cout << "End show " << std::endl;
+//    return true;
+//}
 
 
 bool PclTool::viewerPcl(pcl::PolygonMesh& triangles)
@@ -804,25 +834,26 @@ pcl::PointCloud<pcl::PFHSignature125>::Ptr PclTool::histogramFeatures(pcl::Point
 
 pcl::PointCloud<pcl::PointNormal> PclTool::smoothAndNormalCal(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
 {
-    // Create a KD-Tree
+    // 创建一个 KD-Tree
     pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
 
     // 输出具有PointNormal类型，以便存储MLS计算的法线
+    // 用于存储经过平滑处理后的点云数据以及每个点的法线信息。pcl::PointNormal类型包含位置信息（XYZ坐标）和法线信息（NXNYNZ）。
     pcl::PointCloud<pcl::PointNormal> mls_points;
 
-    // Init对象（第二种点类型用于法线，即使未使用）
+    // 这是PCL中用于执行移动最小二乘（Moving Least Squares, MLS）平滑和法线估计的关键类
+    // 该算法基于每个点的邻域信息，通过最小二乘拟合的方式生成一个新的、更加平滑的表面，并同时计算每个点的法线
     pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
 
-    mls.setComputeNormals(true);
+    mls.setComputeNormals(true);    // 开启法线计算功能。
 
     // 设置参数
     mls.setInputCloud(cloud);
-    mls.setPolynomialOrder(2);
-    mls.setSearchMethod(tree);
-    mls.setSearchRadius(0.1);
+    mls.setPolynomialOrder(2);  // 设置多项式拟合的阶数为2，这是一个平滑度的控制参数，阶数越高表示平滑程度越高。
+    mls.setSearchMethod(tree);  // KD-Tree作为近邻搜索
+    mls.setSearchRadius(2);  // 设定搜索邻域的半径长度，这个值决定了参与平滑和法线计算的邻域大小。
 
-    // 修复
-    mls.process(mls_points); 
+    mls.process(mls_points);  // 执行平滑处理和法线计算
 
     return mls_points;
 }

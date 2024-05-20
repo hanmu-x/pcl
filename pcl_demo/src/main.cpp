@@ -30,7 +30,16 @@ int main()
     std::filesystem::path data_6(DEFAULT_DATA_DIR);
     data_6 += "/table_scene_mug_stereo_textured.pcd";
 
+    /// 多项式重构的平滑和法线估计
+    pcl::PointCloud<pcl::PointXYZ>::Ptr train_cat = PclTool::openPointCloudFile(data_5.string());
+    pcl::PointCloud<pcl::PointNormal> normalll = PclTool::smoothAndNormalCal(train_cat);
+    PclTool::viewerPcl(normalll);
+
+    return 0;
+
+
     pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclTool::openPointCloudFile(data_3.string());
+
 
     // 欧式聚类
     std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> vec_table = PclTool::euclideanClustering(table_cloud);
@@ -117,12 +126,7 @@ int main()
     return 0;
 
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr train_cat = PclTool::openPointCloudFile(data_5.string());
-    PclTool::viewerPcl(train_cat);
-    pcl::PointCloud<pcl::PointNormal> normalll = PclTool::smoothAndNormalCal(train_cat);
-    PclTool::viewerPcl(normalll);
 
-    return 0;
 
     // 待查看----------------------------------
     //pcl::PointCloud<pcl::Normal>::Ptr normal_intergra = PclTool::integralNormalCalculation(table_cloud, 0.02f, 10.0f);

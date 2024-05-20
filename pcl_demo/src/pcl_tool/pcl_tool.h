@@ -275,7 +275,7 @@ class PclTool
     /// 多项式重构的平滑和法线估计
     /// </summary>
     /// <param name="cloud"></param>
-    /// <returns></returns>
+    /// <returns>输出一个包含平滑后的点云数据以及相应法线信息的数据结构</returns>
     static pcl::PointCloud<pcl::PointNormal> smoothAndNormalCal(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
     /// <summary>

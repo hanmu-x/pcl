@@ -448,7 +448,35 @@ ne.compute(*normals);                       // 计算法线
 
 
 
+## 平滑和法线估计
 
+
+```cpp
+
+// 创建一个 KD-Tree
+pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
+
+// 输出具有PointNormal类型，以便存储MLS计算的法线
+// 用于存储经过平滑处理后的点云数据以及每个点的法线信息。pcl::PointNormal类型包含位置信息（XYZ坐标）和法线信息（NXNYNZ）。
+pcl::PointCloud<pcl::PointNormal> mls_points;
+
+// 这是PCL中用于执行移动最小二乘（Moving Least Squares, MLS）平滑和法线估计的关键类
+// 该算法基于每个点的邻域信息，通过最小二乘拟合的方式生成一个新的、更加平滑的表面，并同时计算每个点的法线
+pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
+
+mls.setComputeNormals(true);    // 开启法线计算功能。
+
+// 设置参数
+mls.setInputCloud(cloud);
+mls.setPolynomialOrder(2);  // 设置多项式拟合的阶数为2，这是一个平滑度的控制参数，阶数越高表示平滑程度越高。
+mls.setSearchMethod(tree);  // KD-Tree作为近邻搜索
+mls.setSearchRadius(2);  // 设定搜索邻域的半径长度，这个值决定了参与平滑和法线计算的邻域大小。
+
+mls.process(mls_points);  // 执行平滑处理和法线计算
+
+return mls_points;
+
+```
 
 
 
