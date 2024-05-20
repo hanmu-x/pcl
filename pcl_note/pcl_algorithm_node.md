@@ -480,5 +480,83 @@ return mls_points;
 
 
 
+## 平面分割
+
+
+```cpp
+pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;     // 平面分割的点云
+
+pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);   // 输出参数，用于存储分割得到的平面模型系数
+pcl::PointIndices::Ptr inliers(new pcl::PointIndices);                  // 输出参数，存储被认为是平面模型一部分的点的索引（即局内点）
+
+std::cout << "Point cloud data: " << cloud->points.size() << " points" << std::endl;
+
+// 创建分割对象
+pcl::SACSegmentation<pcl::PointXYZ> seg;
+// 可选择配置，设置模型系数需要优化
+seg.setOptimizeCoefficients(true);
+// 必要的配置，设置分割的模型类型，所用的随机参数估计方法，距离阀值，输入点云
+seg.setModelType(pcl::SACMODEL_PLANE);  // 设置模型类型
+seg.setMethodType(pcl::SAC_RANSAC);     // 设置随机采样一致性方法类型
+seg.setDistanceThreshold(0.01);         // 设定距离阀值，距离阀值决定了点被认为是局内点是必须满足的条件
+                                        // 表示点到估计模型的距离最大值
+
+seg.setInputCloud(cloud);
+// 引发分割实现，存储分割结果到点几何inliers及存储平面模型的系数coefficients
+seg.segment(*inliers, *coefficients);
+if (inliers->indices.size() == 0)
+{
+    std::cout << "Could not estimate a planar model for the given dataset." << std::endl;
+    return false;
+}
+return true;
+
+```
+
+- pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
+    - pcl::ModelCoefficients 用于存储平面模型的系数（A、B、C和D）
+    - Model coefficients: 0 0 1 -1：平面模型的系数表示为[A, B, C, D]，其中A、B、C表示平面的法向量，D表示平面到原点的距离。在这里，系数为[0, 0, 1, -1]，表示平面的法向量在Z轴上，距离原点的距离为1，即平面方程为Z=1。
+- pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
+    - 用于存储内点的索引
+
+
+## 圆柱体模型的分割
+
+
+```cpp
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

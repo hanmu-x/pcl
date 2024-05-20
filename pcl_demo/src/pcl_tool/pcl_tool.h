@@ -279,6 +279,27 @@ class PclTool
     static pcl::PointCloud<pcl::PointNormal> smoothAndNormalCal(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
     /// <summary>
+    /// 平面分割
+    /// </summary>
+    /// <param name="cloud">点云</param>
+    /// <param name="coefficients">存储平面模型的系数（A、B、C和D）,
+    /// [0, 0, 1, -1]，表示平面的法向量在Z轴上，距离原点的距离为1</param>
+    /// <param name="inliers">存储内点的索引</param>
+    /// <returns></returns>
+    static bool planeSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::ModelCoefficients::Ptr& coefficients, pcl::PointIndices::Ptr& inliers);
+
+    /// <summary>
+    /// 圆柱体模型的分割
+    /// </summary>
+    /// <param name="cloud_filtered">输入点云</param>
+    /// <param name="cloud_cylinder">：输出参数，用于存储分割出来的圆柱形结构点云</param>
+    /// <param name="radius_min">圆柱模型的最小半径</param>
+    /// <param name="radius_max">圆柱模型的最大半径</param>
+    /// <param name="distance_threshold">点到圆柱模型的最大允许距离，作为局内点的判断标准</param>
+    /// <returns></returns>
+    static bool cylindricalSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered, pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_cylinder, double radius_min, double radius_max, double distance_threshold);
+
+    /// <summary>
     /// 平面模型上提取凸（凹）多边形
     /// </summary>
     /// <param name="cloud"></param>
@@ -292,25 +313,7 @@ class PclTool
     /// <returns></returns>
     static pcl::PolygonMesh projectionTriangulation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
-    /// <summary>
-    /// 平面分割
-    /// </summary>
-    /// <param name="cloud"></param>
-    /// <param name="coefficients">存储平面模型的系数（A、B、C和D）,[0, 0, 1, -1]，表示平面的法向量在Z轴上，距离原点的距离为1</param>
-    /// <param name="inliers">存储内点的索引</param>
-    /// <returns></returns>
-    static bool planeSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::ModelCoefficients::Ptr coefficients, pcl::PointIndices::Ptr inliers);
 
-    /// <summary>
-    /// 圆柱体模型的分割
-    /// </summary>
-    /// <param name="cloud_filtered"></param>
-    /// <param name="cloud_cylinder"></param>
-    /// <param name="radius_min"></param>
-    /// <param name="radius_max"></param>
-    /// <param name="distance_threshold"></param>
-    /// <returns></returns>
-    static bool cylindricalSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered, pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_cylinder, double radius_min, double radius_max, double distance_threshold);
 
     /// <summary>
     /// 欧式聚类提取

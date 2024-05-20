@@ -859,13 +859,94 @@ pcl::PointCloud<pcl::PointNormal> PclTool::smoothAndNormalCal(pcl::PointCloud<pc
 }
 
 
+
+bool PclTool::planeSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::ModelCoefficients::Ptr& coefficients, pcl::PointIndices::Ptr& inliers)
+{
+    std::cout << "Point cloud data: " << cloud->points.size() << " points" << std::endl;
+
+    //- pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
+    //    - pcl::ModelCoefficients 用于存储平面模型的系数（A、B、C和D）
+    //    - Model coefficients: 0 0 1 -1：平面模型的系数表示为[A, B, C, D]，其中A、B、C表示平面的法向量，D表示平面到原点的距离。在这里，系数为[0, 0, 1, -1]，表示平面的法向量在Z轴上，距离原点的距离为1，即平面方程为Z=1。
+    //- pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
+    //    - 用于存储内点的索引
+
+    // 创建分割对象
+    pcl::SACSegmentation<pcl::PointXYZ> seg;
+    // 可选择配置，设置模型系数需要优化
+    seg.setOptimizeCoefficients(true);
+    // 必要的配置，设置分割的模型类型，所用的随机参数估计方法，距离阀值，输入点云
+    seg.setModelType(pcl::SACMODEL_PLANE);  // 设置模型类型
+    seg.setMethodType(pcl::SAC_RANSAC);     // 设置随机采样一致性方法类型
+    seg.setDistanceThreshold(0.01);         // 设定距离阀值，距离阀值决定了点被认为是局内点是必须满足的条件
+                                            // 表示点到估计模型的距离最大值，
+
+    seg.setInputCloud(cloud);
+    // 引发分割实现，存储分割结果到点几何inliers及存储平面模型的系数coefficients
+    seg.segment(*inliers, *coefficients);
+    if (inliers->indices.size() == 0)
+    {
+        std::cout << "Could not estimate a planar model for the given dataset." << std::endl;
+        return false;
+    }
+    return true;
+}
+
+
+bool PclTool::cylindricalSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered, pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_cylinder, double radius_min, double radius_max, double distance_threshold)
+{
+    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
+
+    pcl::ModelCoefficients::Ptr coefficients_cylinder(new pcl::ModelCoefficients);
+    pcl::PointIndices::Ptr inliers_cylinder(new pcl::PointIndices);
+    pcl::PointCloud<pcl::Normal>::Ptr cloud_normals(new pcl::PointCloud<pcl::Normal>);
+
+    pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;  // 法线估计对象
+    // 过滤后的点云进行法线估计，后续的圆柱体分割需要利用点的法线信息
+    ne.setSearchMethod(tree);
+    ne.setInputCloud(cloud_filtered);
+    ne.setKSearch(50);
+    ne.compute(*cloud_normals);
+
+    pcl::SACSegmentationFromNormals<pcl::PointXYZ, pcl::Normal> seg;
+    seg.setOptimizeCoefficients(true);
+    seg.setModelType(pcl::SACMODEL_CYLINDER);  // 设置模型类型为圆柱（SACMODEL_CYLINDER）
+    seg.setNormalDistanceWeight(0.1);
+    seg.setMethodType(pcl::SAC_RANSAC);  // 选择RANSAC作为随机采样方法
+    // 设置最大迭代次数，距离阈值，以及圆柱的半径范围
+    seg.setMaxIterations(10000);
+    seg.setDistanceThreshold(distance_threshold);
+    seg.setRadiusLimits(radius_min, radius_max);
+    seg.setInputCloud(cloud_filtered);
+    seg.setInputNormals(cloud_normals);
+    // seg.setSearchMethod(tree);
+    
+    // 执行圆柱分割。这将根据设定的参数从输入点云和法线中寻找最佳圆柱模型，并返回局内点索引和模型系数。
+    seg.segment(*inliers_cylinder, *coefficients_cylinder);
+
+    pcl::ExtractIndices<pcl::PointXYZ> extract;
+    if (inliers_cylinder->indices.empty())
+    {
+        printf("Cylinder segmentation failed! No inliers found.\n");
+        return false;
+    }
+    else
+    {
+        extract.setInputCloud(cloud_filtered);
+        extract.setIndices(inliers_cylinder);
+        extract.setNegative(false);
+        extract.filter(*cloud_cylinder);
+        printf("PointCloud representing the cylindrical component: %lu data points.\n", cloud_cylinder->points.size());
+        return true;
+    }
+}
+
+
 pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::ExtractConvexConcavePolygons(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_projected(new pcl::PointCloud<pcl::PointXYZ>);
 
-    // 先做一下直通滤波
-      // 建立过滤器消除杂散的NaN
+    // 直通滤波,仅考虑值指定范围内的数据
     pcl::PassThrough<pcl::PointXYZ> pass;
     pass.setInputCloud(cloud);     // 设置输入点云
     pass.setFilterFieldName("z");  // 设置分割字段为z坐标
@@ -873,8 +954,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::ExtractConvexConcavePolygons(pcl::P
     pass.filter(*cloud_filtered);
     std::cout << "PointCloud after filtering has: " << cloud_filtered->points.size() << " data points." << std::endl;
 
-
-      // 分割
+    // 平面分割
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices);  // inliers存储分割后的点云
     // 创建分割对象
@@ -890,7 +970,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::ExtractConvexConcavePolygons(pcl::P
     seg.segment(*inliers, *coefficients);
     std::cout << "PointCloud after segmentation has: " << inliers->indices.size() << " inliers." << std::endl;
 
-    // Project the model inliers点云投影滤波模型
+    // 点云投影, 将分割出的平面点（inliers）投影到识别出的平面上，进一步过滤非平面点
     pcl::ProjectInliers<pcl::PointXYZ> proj;  // 点云投影滤波模型
     proj.setModelType(pcl::SACMODEL_PLANE);   // 设置投影模型
     proj.setIndices(inliers);
@@ -899,7 +979,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclTool::ExtractConvexConcavePolygons(pcl::P
     proj.filter(*cloud_projected);            // 得到投影后的点云
     std::cout << "PointCloud after projection has: " << cloud_projected->points.size() << " data points." << std::endl;
 
-    // 存储提取多边形上的点云
+    // 提取多边形
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_hull(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::ConcaveHull<pcl::PointXYZ> chull;  // 创建多边形提取对象
     chull.setInputCloud(cloud_projected);   // 设置输入点云为提取后点云
@@ -962,93 +1042,6 @@ pcl::PolygonMesh PclTool::projectionTriangulation(pcl::PointCloud<pcl::PointXYZ>
 
     return triangles;
 }
-
-
-bool PclTool::planeSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::ModelCoefficients::Ptr coefficients, pcl::PointIndices::Ptr inliers)
-{
-    std::cout << "Point cloud data: " << cloud->points.size() << " points" << std::endl;
-
-
-    // 创建分割时所需要的模型系数对象，coefficients及存储内点的点索引集合对象inliers
-    // pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
-    // pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
-    // pcl::ModelCoefficients用于存储平面模型的系数（A、B、C和D）。
-    // Model coefficients: 0 0 1 -1：平面模型的系数表示为[A, B, C, D]，其中A、B、C表示平面的法向量，D表示平面到原点的距离。在这里，系数为[0, 0, 1, -1]，表示平面的法向量在Z轴上，距离原点的距离为1，即平面方程为Z=1。
-    // 而pcl::PointIndices用于存储内点的索引
-
-
-    // 创建分割对象
-    pcl::SACSegmentation<pcl::PointXYZ> seg;
-    // 可选择配置，设置模型系数需要优化
-    seg.setOptimizeCoefficients(true);
-    // 必要的配置，设置分割的模型类型，所用的随机参数估计方法，距离阀值，输入点云
-    seg.setModelType(pcl::SACMODEL_PLANE);  // 设置模型类型
-    seg.setMethodType(pcl::SAC_RANSAC);     // 设置随机采样一致性方法类型
-    seg.setDistanceThreshold(0.01);         // 设定距离阀值，距离阀值决定了点被认为是局内点是必须满足的条件
-                                     // 表示点到估计模型的距离最大值，
-
-    seg.setInputCloud(cloud);
-    // 引发分割实现，存储分割结果到点几何inliers及存储平面模型的系数coefficients
-    seg.segment(*inliers, *coefficients);
-    if (inliers->indices.size() == 0)
-    {
-        std::cout << "Could not estimate a planar model for the given dataset." << std::endl;
-        return false;
-    }
-    return true;
-}
-
-
-bool PclTool::cylindricalSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered,
-                     pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud_cylinder,
-                     double radius_min,
-                     double radius_max,
-                     double distance_threshold)
-{
-    pcl::SACSegmentationFromNormals<pcl::PointXYZ, pcl::Normal> seg;
-    pcl::ExtractIndices<pcl::PointXYZ> extract;
-    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>());
-
-    pcl::ModelCoefficients::Ptr coefficients_cylinder(new pcl::ModelCoefficients);
-    pcl::PointIndices::Ptr inliers_cylinder(new pcl::PointIndices);
-    pcl::PointCloud<pcl::Normal>::Ptr cloud_normals(new pcl::PointCloud<pcl::Normal>);
-    pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;  // 法线估计对象
-
-    // 过滤后的点云进行法线估计，为后续进行基于法线的分割准备数据
-    ne.setSearchMethod(tree);
-    ne.setInputCloud(cloud_filtered);
-    ne.setKSearch(50);
-    ne.compute(*cloud_normals);
-
-    seg.setOptimizeCoefficients(true);
-    seg.setModelType(pcl::SACMODEL_CYLINDER);
-    seg.setNormalDistanceWeight(0.1);
-    seg.setMethodType(pcl::SAC_RANSAC);
-    seg.setMaxIterations(10000);
-    seg.setDistanceThreshold(distance_threshold);
-    seg.setRadiusLimits(radius_min, radius_max);
-    seg.setInputCloud(cloud_filtered);
-    seg.setInputNormals(cloud_normals);
-    //seg.setSearchMethod(tree);
-
-    seg.segment(*inliers_cylinder, *coefficients_cylinder);
-
-    if (inliers_cylinder->indices.empty())
-    {
-        printf("Cylinder segmentation failed! No inliers found.\n");
-        return false;
-    }
-    else
-    {
-        extract.setInputCloud(cloud_filtered);
-        extract.setIndices(inliers_cylinder);
-        extract.setNegative(false);
-        extract.filter(*cloud_cylinder);
-        printf("PointCloud representing the cylindrical component: %lu data points.\n", cloud_cylinder->points.size());
-        return true;
-    }
-}
-
 
 
 
