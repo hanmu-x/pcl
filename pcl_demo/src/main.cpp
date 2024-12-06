@@ -1,9 +1,15 @@
 
 #include "pcl_tool/pcl_tool.h"
+
 #include <filesystem>
 #include<iostream>
 #include <pcl/io/pcd_io.h>
 
+#include "pcl_tool/pcl_IO.h"
+#include "pcl_tool/pcl_filter.h"
+#include "pcl_tool/pcl_feature.h"
+#include "pcl_tool/pcl_transform.h"
+#include "pcl_tool/pcl_algo.h"
 
 
 int main()
@@ -27,38 +33,38 @@ int main()
     data_6 += "/table_scene_mug_stereo_textured.pcd";
 
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr table_scene = PclTool::openPointCloudFile(data_6.string());
-    pcl::PointCloud<pcl::PointXYZ>::Ptr talble_hull = PclTool::ExtractConvexConcavePolygons(table_scene);
-    PclTool::viewerPcl(talble_hull);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr table_scene = PclIO::openPointCloudFile(data_6.string());
+    pcl::PointCloud<pcl::PointXYZ>::Ptr talble_hull = PclTransform::ExtractConvexConcavePolygons(table_scene);
+    PclIO::viewerPcl(talble_hull);
     return 0;
 
     /// 多项式重构的平滑和法线估计
-    pcl::PointCloud<pcl::PointXYZ>::Ptr train_cat = PclTool::openPointCloudFile(data_5.string());
-    pcl::PointCloud<pcl::PointNormal> normalll = PclTool::smoothAndNormalCal(train_cat);
-    PclTool::viewerPcl(normalll);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr train_cat = PclIO::openPointCloudFile(data_5.string());
+    pcl::PointCloud<pcl::PointNormal> normalll = PclFeature::smoothAndNormalCal(train_cat);
+    PclIO::viewerPcl(normalll);
 
     return 0;
 
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclTool::openPointCloudFile(data_3.string());
+    pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclIO::openPointCloudFile(data_3.string());
 
 
     // 欧式聚类
-    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> vec_table = PclTool::euclideanClustering(table_cloud);
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> vec_table = PclAlgo::euclideanClustering(table_cloud);
 
     for (const auto& once : vec_table)
     {
-        PclTool::viewerPcl(once);
+        PclIO::viewerPcl(once);
     }
 
     return 0;
 
     // 圆柱分隔
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cylinder(new pcl::PointCloud<pcl::PointXYZ>);
-    PclTool::cylindricalSegmentation(table_scene, cloud_cylinder, 0, 0.1, 0.05);
+    PclTransform::cylindricalSegmentation(table_scene, cloud_cylinder, 0, 0.1, 0.05);
     if (!cloud_cylinder->points.empty())
     {
-        PclTool::viewerPcl(cloud_cylinder);
+        PclIO::viewerPcl(cloud_cylinder);
     }
     else
     {
@@ -68,7 +74,7 @@ int main()
 
     return 0;
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr tuzi = PclTool::openPointCloudFile(data_1.string());
+    pcl::PointCloud<pcl::PointXYZ>::Ptr tuzi = PclIO::openPointCloudFile(data_1.string());
 
     
 
@@ -97,7 +103,7 @@ int main()
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
 
-    PclTool::planeSegmentation(planeSeg_cloud, coefficients, inliers);
+    PclTransform::planeSegmentation(planeSeg_cloud, coefficients, inliers);
 
     if (inliers->indices.size() == 0)
     {
@@ -115,8 +121,8 @@ int main()
     return 0;
 
     // 三角化
-    pcl::PolygonMesh tuzimesh = PclTool::projectionTriangulation(tuzi);
-    PclTool::viewerPcl(tuzimesh);
+    pcl::PolygonMesh tuzimesh = PclAlgo::projectionTriangulation(tuzi);
+    PclIO::viewerPcl(tuzimesh);
 
     return 0;
     
@@ -127,34 +133,34 @@ int main()
     // 待查看----------------------------------
     //pcl::PointCloud<pcl::Normal>::Ptr normal_intergra = PclTool::integralNormalCalculation(table_cloud, 0.02f, 10.0f);
 
-    //PclTool::viewerPcl(table_cloud, normal_intergra);
+    //PclIO::viewerPcl(table_cloud, normal_intergra);
     //return 0;
     // 待查看----------------------------------
 
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cat_cloud = PclTool::openPointCloudFile(data_4.string());
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cat_cloud = PclIO::openPointCloudFile(data_4.string());
 
     // 待查看----------------------------------
-    pcl::PointCloud<pcl::PFHSignature125>::Ptr pfh = PclTool::histogramFeatures(cat_cloud, 0.05);
+    pcl::PointCloud<pcl::PFHSignature125>::Ptr pfh = PclFeature::histogramFeatures(cat_cloud, 0.05);
     return 0;
     // 待查看----------------------------------
 
-    pcl::PointCloud<pcl::Normal>::Ptr normal = PclTool::PclTool::normalCalculation(table_cloud, 0.03);
-    PclTool::viewerPcl(table_cloud, normal);
+    pcl::PointCloud<pcl::Normal>::Ptr normal = PclFeature::normalCalculation(table_cloud, 0.03);
+    PclIO::viewerPcl(table_cloud, normal);
 
     return 0;
 
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr concloud = PclTool::openPointCloudFile(data_2.string());
+    pcl::PointCloud<pcl::PointXYZ>::Ptr concloud = PclIO::openPointCloudFile(data_2.string());
 
-    std::vector<int> index2 = PclTool::randomSampleConsensusALG(concloud, 0.6, 2);
+    std::vector<int> index2 = PclFilter::randomSampleConsensusALG(concloud, 0.6, 2);
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr outcloud(new pcl::PointCloud<pcl::PointXYZ>);
 
-    if (PclTool::copyPcd(concloud, outcloud, index2))
+    if (PclIO::copyPcd(concloud, outcloud, index2))
     {
         // 打开pcd
-        PclTool::viewerPcl(outcloud);
+        PclIO::viewerPcl(outcloud);
     }
 
     return 0;
@@ -166,62 +172,62 @@ int main()
     std::vector<pcl::FieldComparison<pcl::PointXYZ>::ConstPtr> comparisons;
     comparisons.push_back(comp1);
     comparisons.push_back(comp2);
-    pcl::PointCloud<pcl::PointXYZ>::Ptr condCloud = PclTool::conditionRemoval(table_cloud, comparisons);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr condCloud = PclFilter::conditionRemoval(table_cloud, comparisons);
     
-    PclTool::viewerPcl(condCloud);
+    PclIO::viewerPcl(condCloud);
 
     return 0;
     
     /// RadiusOutlinerRemoval 移除离群点
-    pcl::PointCloud<pcl::PointXYZ>::Ptr RORemoval_cloud = PclTool::RORemoval(table_cloud, 0.01, 1);
-    PclTool::viewerPcl(RORemoval_cloud);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr RORemoval_cloud = PclFilter::RORemoval(table_cloud, 0.01, 1);
+    PclIO::viewerPcl(RORemoval_cloud);
 
 
 
 
     // 点云提取
-    pcl::PCLPointCloud2::Ptr cloud2_table_cloud2 = PclTool::openPointCloudFile2(data_3.string());
+    pcl::PCLPointCloud2::Ptr cloud2_table_cloud2 = PclIO::openPointCloudFile2(data_3.string());
 
-    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> vecExtraction = PclTool::cloudExtraction(cloud2_table_cloud2);
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> vecExtraction = PclTransform::cloudExtraction(cloud2_table_cloud2);
     for (const auto& ones : vecExtraction)
     {
-        PclTool::viewerPcl(ones);
+        PclIO::viewerPcl(ones);
     }
 
 
     // 点云投影
 
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr Projection_xy = PclTool::cloudProjection(table_cloud, 0.0, 0.0, 1.0, 0.0);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr Projection_xy = PclTransform::cloudProjection(table_cloud, 0.0, 0.0, 1.0, 0.0);
 
-    PclTool::viewerPcl(Projection_xy);
-
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr Projection_yz = PclTool::cloudProjection(table_cloud, 1.0, 0.0, 0.0, 0.0);
-
-    PclTool::viewerPcl(Projection_yz);
-
-    return 0;
+    PclIO::viewerPcl(Projection_xy);
 
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr scrfilter_table = PclTool::statisticalOutlierRemovalFilter(table_cloud, 50, 1.0, true);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr Projection_yz = PclTransform::cloudProjection(table_cloud, 1.0, 0.0, 0.0, 0.0);
 
-    PclTool::viewerPcl(scrfilter_table);
+    PclIO::viewerPcl(Projection_yz);
 
     return 0;
 
 
+    pcl::PointCloud<pcl::PointXYZ>::Ptr scrfilter_table = PclFilter::statisticalOutlierRemovalFilter(table_cloud, 50, 1.0, true);
 
-    pcl::PCLPointCloud2::Ptr cloud2_table_fl = PclTool::voxelGridFilter(cloud2_table_cloud2, 0.1, 0.1, 0.1);
+    PclIO::viewerPcl(scrfilter_table);
 
-    PclTool::viewerPcl(cloud2_table_fl);
     return 0;
 
 
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr passthfilter = PclTool::passThroughFilter(tuzi, "x", -0.05, 0.02,  false);
+    pcl::PCLPointCloud2::Ptr cloud2_table_fl = PclFilter::voxelGridFilter(cloud2_table_cloud2, 0.1, 0.1, 0.1);
 
-    PclTool::viewerPcl(passthfilter);
+    PclIO::viewerPcl(cloud2_table_fl);
+    return 0;
+
+
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr passthfilter = PclFilter::passThroughFilter(tuzi, "x", -0.05, 0.02, false);
+
+    PclIO::viewerPcl(passthfilter);
     return 0;
 
 
@@ -231,14 +237,14 @@ int main()
     // 获取随机点的坐标
     pcl::PointXYZ searchPoint = tuzi->points[randomIndex];
     // 执行k紧邻搜索
-    std::vector<int> index = PclTool::octreeRadiusSearch(tuzi, 10, searchPoint, 0.12);
+    std::vector<int> index = PclFilter::octreeRadiusSearch(tuzi, 10, searchPoint, 0.12);
 
     //pcl::PointCloud<pcl::PointXYZ>::Ptr outcloud(new pcl::PointCloud<pcl::PointXYZ>);
 
-    //if (PclTool::copyPcd(cloud_tuzi, outcloud, index))
+    //if (PclIO::copyPcd(cloud_tuzi, outcloud, index))
     //{
     //    // 打开pcd
-    //    PclTool::viewerPcl(outcloud);
+    //    PclIO::viewerPcl(outcloud);
     //}
 
 
@@ -271,7 +277,7 @@ int main()
 //    data_2 += "/tuzi_copy.pcd";
 //	// //打开一个pcd
 //    //PclTool::openPcd(data_1.string());
-//	//PclTool::copyPcd(data_1.string(), data_2.string());
+//	//PclIO::copyPcd(data_1.string(), data_2.string());
 //
 //    std::string ip = "192.168.0.163"; // 服务器IP地址
 //    int port = 8080; // 服务器端口号
