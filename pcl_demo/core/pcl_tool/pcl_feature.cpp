@@ -6,6 +6,8 @@
 #include <pcl/features/pfh.h>  //pfh特征估计类头文件
 #include <pcl/visualization/pcl_plotter.h>  // 直方图的可视化 方法2
 #include <pcl/surface/mls.h>
+#include <pcl/visualization/range_image_visualizer.h>
+
 
 pcl::PointCloud<pcl::Normal>::Ptr PclFeature::normalCalculation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius)
 {
@@ -48,6 +50,61 @@ pcl::PointCloud<pcl::Normal>::Ptr PclFeature::normalCalculationFromIndicators(pc
 
     return cloud_normals;
 }
+
+
+
+void PclFeature::depthMap(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, pcl::RangeImage& rangeImage)
+{
+    // 设置深度图生成的参数
+
+    // angularResolution
+    // 含义: 这是角度分辨率, 以弧度为单位。它定义了生成范围图像时在水平和垂直方向上每个像素之间的角度间隔。例如, 1°的角度分辨率将使得每个像素代表一个1° x 1°的视场。
+    // 作用 : 这个参数影响生成的范围图像的分辨率。较小的角度分辨率意味着更高的图像分辨率, 反之则意味着图像分辨率较低。
+    float angularResolution = (float)(1.0f * (M_PI / 180.0f));                             // 1° in radians
+    
+    // 最大水平角度, 表示图像的水平视场。它通常设置为 360°, 表示完整的水平旋转视角。在弧度制下, 它等于 2 * M_PI。
+    // 此参数确定了生成的范围图像在水平方向上可以覆盖的最大视场范围。通常, 它会设置为 360°(2 * M_PI), 代表完整的圆形视角。
+    float maxAngleWidth = (float)(360.0f * (M_PI / 180.0f));                               // 360° in radians
+    
+    //
+    // 含义: 最大垂直角度, 表示图像的垂直视场。它通常设置为 180°, 表示从上到下的完整垂直视场范围, 在弧度制下, 它等于 M_PI。
+    // 作用 : 此参数确定了生成的范围图像在垂直方向上可以覆盖的最大视场范围。通常, 它会设置为 180°(M_PI), 表示从地平线到天顶的完整视角。
+    float maxAngleHeight = (float)(180.0f * (M_PI / 180.0f));                              // 180° in radians
+    
+    // sensorPose
+    // 含义: 传感器的位置和朝向(传感器在世界坐标系中的变换)。这是一个 4x4 的变换矩阵, 可以包括旋转和平移信息。
+    // 作用: 这个参数决定了传感器(例如激光雷达或深度相机)的位置和朝向。对于不同的应用, 传感器的安装位置和方向会影响生成的范围图像的视角和局部坐标系。通常, 如果传感器位于原点并朝向某个方向, 该参数将反映这一点。
+    Eigen::Affine3f sensorPose = Eigen::Affine3f(Eigen::Translation3f(0.0f, 0.0f, 0.0f));  // Sensor position
+    
+    // coordinateFrame
+    // 含义: 指定范围图像使用的坐标系。可以是以下几种之一: 
+    // pcl::RangeImage::CAMERA_FRAME: 使用相机坐标系, 通常是指图像的左上角表示相机的视点, 图像中心是相机的前方。
+    pcl::RangeImage::CoordinateFrame coordinateFrame = pcl::RangeImage::CAMERA_FRAME;      // Camera coordinate frame
+    // noiseLevel
+    // 含义: 点云数据中的噪声水平, 通常是一个介于 0 和 1 之间的值。
+    // 作用: 此参数用于模拟点云数据中的噪声。较高的值表示噪声较多, 较低的值则表示噪声较少。它有助于在处理时模拟更真实的环境条件, 或者在生成范围图像时进行噪声滤波。
+    float noiseLevel = 0.00;    // No noise
+    // 含义: 传感器的最小测量范围, 通常用来排除距离传感器非常近的点。
+    // 作用 : 此参数设置了在生成范围图像时, 哪些点云数据被认为是在传感器的有效测量范围之外。如果点云中的某些点距离传感器的距离小于 minRange, 这些点将被忽略。
+    float minRange = 0.0f;  // Minimum range (no clipping)
+    // 含义: 范围图像边界的大小, 通常用来控制范围图像的边缘部分如何处理。
+    // 作用: 这个参数设置了范围图像边缘的处理方式。如果有像素没有数据(例如, 边界处), 则该参数指定如何填充这些区域。通常为 1, 表示边界有1个像素宽度。
+    int borderSize = 1;  // Border size for image
+
+    // 调用函数生成深度图
+    // 使用输入的点云和给定的参数生成深度图（RangeImage）
+
+    // 初始化 range_image_ptr 为 pcl::RangeImage 类型
+    boost::shared_ptr<pcl::RangeImage> range_image_ptr(new pcl::RangeImage);
+    rangeImage = *range_image_ptr;
+
+    // 创建 rangeImage
+    rangeImage.createFromPointCloud(*cloud, angularResolution, maxAngleWidth, maxAngleHeight, sensorPose, coordinateFrame, noiseLevel, minRange, borderSize);
+
+    std::cout << "深度图 " << rangeImage << "\n";
+
+}
+
 
 pcl::PointCloud<pcl::Normal>::Ptr PclFeature::integralNormalCalculation(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float depth_factor, float smooth_size)
 {

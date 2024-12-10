@@ -8,6 +8,8 @@
 
 #include <pcl/point_cloud.h>  // 点云类型
 #include <pcl/point_types.h>  //点数据类型
+#include <pcl/range_image/range_image.h>
+
 
 class PclFeature
 {
@@ -28,6 +30,14 @@ class PclFeature
     /// <param name="indicators">指定的索引值</param>
     /// <returns></returns>
     static pcl::PointCloud<pcl::Normal>::Ptr normalCalculationFromIndicators(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, double radius, std::vector<int> indicators);
+    
+    /// <summary>
+    /// 深度图 (这里面参数待校正)
+    /// </summary>
+    /// <param name="cloud"></param>
+    /// <param name="rangeImage"></param>
+    /// <returns></returns>
+    static void depthMap(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud, pcl::RangeImage& rangeImage);
 
     /// <summary>
     /// 积分图法线估计

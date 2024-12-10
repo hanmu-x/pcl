@@ -9,6 +9,8 @@
 #include "pcl_tool/pcl_transform.h"
 #include "pcl_tool/pcl_algo.h"
 
+//#include <vld.h>
+#include <pcl/visualization/range_image_visualizer.h>
 
 int main()
 {
@@ -30,6 +32,37 @@ int main()
     std::filesystem::path data_6(DEFAULT_DATA_DIR);
     data_6 += "/table_scene_mug_stereo_textured.pcd";
 
+    std::filesystem::path mapPcd(DEFAULT_DATA_DIR);
+    mapPcd += "/pointcloud_map.pcd";
+
+    std::filesystem::path rect(DEFAULT_DATA_DIR);
+    rect += "/rect.pcd";
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr mapPcdPtr = PclIO::openPointCloudFile(mapPcd.string());
+
+    // 绘制矩形
+    pcl::PointCloud<pcl::PointXYZ>::Ptr mapRect = PclIO::drawCube(mapPcdPtr);
+    PclIO::savePointCloudFile(mapRect, rect.string());
+    PclIO::viewerPcl(mapRect);
+
+    return 0;
+
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclIO::openPointCloudFile(data_3.string());
+
+    // 深度图
+    pcl::RangeImage rangeImage;
+    PclFeature::depthMap(table_cloud, rangeImage);
+    // 现在你可以将range_image可视化
+    pcl::visualization::RangeImageVisualizer range_image_viewer("Range Image Viewer");
+    range_image_viewer.showRangeImage(rangeImage);
+
+    while (!range_image_viewer.wasStopped())
+    {
+        range_image_viewer.spinOnce();
+    }
+
+    return 0;
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr table_scene = PclIO::openPointCloudFile(data_6.string());
     pcl::PointCloud<pcl::PointXYZ>::Ptr talble_hull = PclTransform::ExtractConvexConcavePolygons(table_scene);
@@ -44,7 +77,6 @@ int main()
     return 0;
 
 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr table_cloud = PclIO::openPointCloudFile(data_3.string());
 
 
     // 欧式聚类

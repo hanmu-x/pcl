@@ -84,6 +84,13 @@ class PclIO
     ///// <param name="spcd"></param>
     ///// <returns></returns>
     // static bool link(std::string fpcd, std::string spcd);
+
+    /// <summary>
+    /// 点云中绘制立方体
+    /// </summary>
+    /// <param name="fromCloud"></param>
+    /// <returns></returns>
+    static pcl::PointCloud<pcl::PointXYZ>::Ptr drawCube(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 };
 
 #endif  // PCL_IO_H
