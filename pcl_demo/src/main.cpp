@@ -39,6 +39,12 @@ int main()
     rect += "/rect.pcd";
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr mapPcdPtr = PclIO::openPointCloudFile(mapPcd.string());
+    
+    pcl::PointCloud<pcl::PointXYZ>::Ptr las_cloud = PclIO::openPointCloudFile("D:/1_wangyingjie/readfile/3_Mountain/1_RawPointCloud/1.pcd");
+    pcl::PointCloud<pcl::PointXYZ>::Ptr las_cloud_fl = PclFilter::voxelGridFilter(las_cloud, 1, 1, 1);
+    PclIO::viewerPcl(las_cloud_fl);
+
+    return 0;
 
     // 绘制矩形
     pcl::PointCloud<pcl::PointXYZ>::Ptr mapRect = PclIO::drawCube(mapPcdPtr);

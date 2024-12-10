@@ -178,6 +178,19 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclFilter::passThroughFilter(pcl::PointCloud
 
     return cloud_filtered;
 }
+pcl::PointCloud<pcl::PointXYZ>::Ptr PclFilter::voxelGridFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float lx, float ly, float lz)
+{
+    // 创建 VoxelGrid 滤波器对象
+    pcl::VoxelGrid<pcl::PointXYZ> sor;
+    sor.setInputCloud(cloud);           // 设置输入点云
+    sor.setLeafSize(lx, ly, lz);  // 设置体素大小，这里是 X、Y、Z 方向上每个体素的边长（单位：米）
+    // 创建一个新的 PointCloud 来保存下采样后的点云
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
+
+    // 执行下采样
+    sor.filter(*cloud_filtered);
+    return cloud_filtered;
+}
 
 pcl::PCLPointCloud2::Ptr PclFilter::voxelGridFilter(pcl::PCLPointCloud2::Ptr cloud, float lx, float ly, float lz)
 {

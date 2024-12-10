@@ -96,12 +96,12 @@ class PclFilter
     /// VoxelGrid滤波下采样
     /// </summary>
     /// <param name="cloud">需要滤波的点云</param>
-    /// <param name="lx">x轴的稀疏度,在这个范围内的x会被合成一个点</param>
+    /// <param name="lx">X、Y、Z 方向上每个体素的边长（单位：米）</param>
     /// <param name="ly">三维体素栅格的y</param>
     /// <param name="lz">三维体素栅格的z</param>
     /// <returns></returns>
+    static pcl::PointCloud<pcl::PointXYZ>::Ptr voxelGridFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float lx, float ly, float lz);
     static pcl::PCLPointCloud2::Ptr voxelGridFilter(pcl::PCLPointCloud2::Ptr cloud, float lx, float ly, float lz);
-
     /// <summary>
     /// 使用statisticalOutlierRemoval滤波器移除离群点
     /// </summary>

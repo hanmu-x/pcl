@@ -3,6 +3,12 @@
 
 pcl版本: 1.13.0
 
+vcpkg 版本
+vcpkg package management program version 2023-01-24-8a88d63f241d391772fbde69af9cab96c3c64c75
+
+vcpkg intall jsoncpp  pcl  pcl[visualization]  vtk  liblas
+
+
 
 ### pcl_IO.h (点云输入输出)
 
