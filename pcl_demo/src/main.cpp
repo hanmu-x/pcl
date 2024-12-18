@@ -36,20 +36,23 @@ int main()
     mapPcd += "/pointcloud_map.pcd";
 
     std::filesystem::path rect(DEFAULT_DATA_DIR);
-    rect += "/rect.pcd";
+    rect += "/hill.pcd";
+
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr mapPcdPtr = PclIO::openPointCloudFile(mapPcd.string());
-    
-    pcl::PointCloud<pcl::PointXYZ>::Ptr las_cloud = PclIO::openPointCloudFile("D:/1_wangyingjie/readfile/3_Mountain/1_RawPointCloud/1.pcd");
-    pcl::PointCloud<pcl::PointXYZ>::Ptr las_cloud_fl = PclFilter::voxelGridFilter(las_cloud, 1, 1, 1);
-    PclIO::viewerPcl(las_cloud_fl);
-
-    return 0;
-
-    // 绘制矩形
+    // 绘制立方体
     pcl::PointCloud<pcl::PointXYZ>::Ptr mapRect = PclIO::drawCube(mapPcdPtr);
     PclIO::savePointCloudFile(mapRect, rect.string());
     PclIO::viewerPcl(mapRect);
+
+    return 0;
+
+        // VoxelGrid滤波下采样
+    pcl::PointCloud<pcl::PointXYZ>::Ptr las_cloud = PclIO::openPointCloudFile("D:/1_wangyingjie/readfile/3_Mountain/1_RawPointCloud/1.pcd");
+    pcl::PointCloud<pcl::PointXYZ>::Ptr las_cloud_fl = PclFilter::voxelGridFilter(las_cloud, 0.1, 0.1, 0.1);
+    PclIO::savePointCloudFile(las_cloud_fl, rect.string());
+
+    PclIO::viewerPcl(las_cloud_fl);
 
     return 0;
 

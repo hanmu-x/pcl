@@ -353,7 +353,6 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclIO::drawCube(const pcl::PointCloud<pcl::P
     float length = 1.0f;   // 长度 1 米
     float width = 1.0f;    // 宽度 1 米
     float height = 10.0f;  // 高度 10 米
-    float offset = 5.0f;   // 原点前方 5 米
 
     // 创建 PointCloud 对象来存储立方体的点
     pcl::PointCloud<pcl::PointXYZ>::Ptr cube_cloud(new pcl::PointCloud<pcl::PointXYZ>());
@@ -361,7 +360,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclIO::drawCube(const pcl::PointCloud<pcl::P
     // 新位置：相对于点云原点 x轴正方向10米，y轴正方向5米，z轴和原点z轴相同
     float offset_x = 10.0f;
     float offset_y = 5.0f;
-    float offset_z = 0.0f;  // 假设原点的z坐标为0，保持不变
+    float offset_z = height / 2.0f;  // 假设立方体底面与z=0平齐，offset_z = height / 2
 
     // 计算立方体的 8 个顶点，基于新的偏移量
     pcl::PointXYZ vertices[8];
@@ -374,7 +373,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclIO::drawCube(const pcl::PointCloud<pcl::P
     vertices[6] = pcl::PointXYZ(offset_x + length / 2, offset_y + width / 2, offset_z - height / 2);  // 后上右
     vertices[7] = pcl::PointXYZ(offset_x - length / 2, offset_y + width / 2, offset_z - height / 2);  // 后上左
 
-    // 定义每个面的两个三角形
+    // 立方体的每个面由 4 个顶点组成。每个面可以由两个三角形来表示，所以在这里每个面都用一个包含 4 个顶点的数组来表示
     std::vector<std::array<int, 4>> faces = {
         {0, 1, 2, 3},  // 前面
         {4, 5, 6, 7},  // 后面
@@ -418,9 +417,9 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclIO::drawCube(const pcl::PointCloud<pcl::P
     src_cloud->height = 1;
     src_cloud->is_dense = false;
 
-    // 只要绘制的矩形
-    //return cube_cloud;
+    ////只要绘制的矩形
+    return cube_cloud;
 
-    // 返回包含立方体表面的点云
-    return src_cloud;
+    //// 返回包含立方体表面的点云
+    //return src_cloud;
 }
