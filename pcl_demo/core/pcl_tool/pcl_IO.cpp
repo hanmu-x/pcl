@@ -360,7 +360,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr PclIO::drawCube(const pcl::PointCloud<pcl::P
     // 新位置：相对于点云原点 x轴正方向10米，y轴正方向5米，z轴和原点z轴相同
     float offset_x = 10.0f;
     float offset_y = 5.0f;
-    float offset_z = height / 2.0f;  // 假设立方体底面与z=0平齐，offset_z = height / 2
+    float offset_z = height / 2.0f + 0.0f;  // 假设立方体底面与z=0平齐，offset_z = height / 2
 
     // 计算立方体的 8 个顶点，基于新的偏移量
     pcl::PointXYZ vertices[8];
