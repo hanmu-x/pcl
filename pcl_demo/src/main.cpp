@@ -47,7 +47,7 @@ int main()
 
     return 0;
 
-        // VoxelGrid滤波下采样
+    // VoxelGrid滤波下采样
     pcl::PointCloud<pcl::PointXYZ>::Ptr las_cloud = PclIO::openPointCloudFile("D:/1_wangyingjie/readfile/3_Mountain/1_RawPointCloud/1.pcd");
     pcl::PointCloud<pcl::PointXYZ>::Ptr las_cloud_fl = PclFilter::voxelGridFilter(las_cloud, 0.1, 0.1, 0.1);
     PclIO::savePointCloudFile(las_cloud_fl, rect.string());

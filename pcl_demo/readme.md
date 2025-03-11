@@ -1,3 +1,11 @@
+<!--
+ * @Author: yingjie_wang 2778809626@qq.com
+ * @Date: 2024-05-10 18:53:18
+ * @LastEditors: yingjie_wang 2778809626@qq.com
+ * @LastEditTime: 2025-02-11 14:04:38
+ * @FilePath: \OperationsAndMaintenanced:\1_wangyingjie\learn\github_project\3_pcl\pcl\pcl_demo\readme.md
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 
 # PLC库学习
 
@@ -59,6 +67,46 @@ vcpkg intall jsoncpp  pcl  pcl[visualization]  vtk  liblas
 
 - 贪婪三角化
 - 欧式聚类提取
+- 点云重构算法:
+  - 
+
+
+
+Raw Point Cloud Reconstructed
+重建的原始点云
+
+Raw Point Cloud Reconstructed(edges hidden)
+重建的原始点云(隐藏边)
+
+Smoothed Point Cloud
+平滑的点云
+
+Smoothed Point Cloud
+平滑的点云
+
+Smooth Point Cloud
+平滑点云
+
+Reconstructed
+重建
+
+Reconstructed(edges hidden)
+已重建(隐藏边)
+
+Simplified Point Cloud
+简化的点云
+
+Simplified Point Cloud
+简化的点云
+
+Simplified Point Cloud
+简化的点云
+
+Reconstructed
+重建
+
+Reconstructed(edges hidden)
+已重建(隐藏边)
 
 
 
