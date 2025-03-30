@@ -102,19 +102,22 @@ class PclFilter
     /// <returns></returns>
     static pcl::PointCloud<pcl::PointXYZ>::Ptr voxelGridFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float lx, float ly, float lz);
     static pcl::PCLPointCloud2::Ptr voxelGridFilter(pcl::PCLPointCloud2::Ptr cloud, float lx, float ly, float lz);
+
+
     /// <summary>
-    /// 使用statisticalOutlierRemoval滤波器移除离群点
+    /// statisticalOutlierRemoval(统计离群点移除)移除离群点
+    /// 适用于点云较为密集且分布均匀的情况
     /// </summary>
     /// <param name="cloud">被过滤的点云</param>
-    /// <param name="meank">统计周围离近点判断是否为离群点</param>
-    /// <param name="threshold">判断是否为离群点的阈值</param>
+    /// <param name="meank">指定每个点的邻居数，用于计算平均距离</param>
+    /// <param name="threshold">设置标准差倍数作为离群点判定的阈值。例如，如果某点的平均距离超过全局平均值加上 std_mul 倍的标准差，则认为它是离群点</param>
     /// <param name="Inversion">是否对结果取反,false:删除离群点,true:保留离群点</param>
     /// <returns></returns>
     static pcl::PointCloud<pcl::PointXYZ>::Ptr statisticalOutlierRemovalFilter(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int meank, double threshold, bool Inversion = false);
 
     /// <summary>
-    /// RadiusOutlinerRemoval 移除离群点
-    /// 删除在输入点云一定范围内没有达到足够多近邻的所有数据点
+    /// RadiusOutlinerRemoval(半径离群点移除)移除离群点
+    /// 该滤波器基于局部密度的原理移除离群点,对于稀疏点云或非均匀分布的点云效果较好。
     /// </summary>
     /// <param name="cloud"></param>
     /// <param name="radius">设置半径的范围内找临近点</param>

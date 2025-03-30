@@ -1,0 +1,22 @@
+{
+  "input_file": "D:/7_work/1_nnzn/2_code/1_tool/PclGridMap/data/office_all.pcd",
+  "output_file": "D:/7_work/1_nnzn/2_code/1_tool/PclGridMap/data/office_all_filter.pcd",
+  "filters": {
+    "passthrough_filter": {
+      "enabled": true,
+      "axis": "z",
+      "min_value": 0.3,
+      "max_value": 3.0
+    },
+    "statistical_outlier_removal": {
+      "enabled": false,
+      "mean_k": 50,
+      "std_dev_mul_thresh": 1.0
+    },
+    "radius_outlier_removal": {
+      "enabled": true,
+      "radius_search": 0.5,
+      "min_neighbors_in_radius": 22
+    }
+  }
+}

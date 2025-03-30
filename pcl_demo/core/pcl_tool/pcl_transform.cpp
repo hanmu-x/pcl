@@ -169,7 +169,7 @@ bool PclTransform::cylindricalSegmentation(pcl::PointCloud<pcl::PointXYZ>::Ptr c
         extract.setIndices(inliers_cylinder);
         extract.setNegative(false);
         extract.filter(*cloud_cylinder);
-        printf("PointCloud representing the cylindrical component: %lu data points.\n", cloud_cylinder->points.size());
+        std::cout << "PointCloud representing the cylindrical component: " << cloud_cylinder->points.size() << " data points." << std::endl;
         return true;
     }
 }
